@@ -70,9 +70,10 @@ class InvoiceForm extends React.Component {
       price: '1.00',
       description: '',
       quantity: 1
-    }
+    };
     this.state.items.push(items);
     this.setState(this.state.items);
+    //this.onItemizedItemEdit(this);
   }
   handleCalculateTotal() {
     var items = this.state.items;
