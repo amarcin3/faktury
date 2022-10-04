@@ -35,7 +35,6 @@ class InvoiceItem extends React.Component {
     );
 
   }
-//TODO: Do pierwszego wiersza nie da się wpisać treści, w pierwszym wierszu nie ma id po typach FIX IT
 }
 class ItemRow extends React.Component {
   onDelEvent() {

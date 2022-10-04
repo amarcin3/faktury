@@ -63,7 +63,7 @@ class InvoiceForm extends React.Component {
     this.setState(this.state.items);
   };
   handleAddEvent() {
-    var id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
+    let id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
     var items = {
       id: id,
       name: '',
@@ -73,11 +73,9 @@ class InvoiceForm extends React.Component {
     }
     this.state.items.push(items);
     this.setState(this.state.items);
-    console.log(this.state.items);
   }
   handleCalculateTotal() {
     var items = this.state.items;
-    console.log(this.state.items.length);
     var subTotal = 0;
 
     items.map(function(items) {
@@ -89,13 +87,13 @@ class InvoiceForm extends React.Component {
       subTotal: parseFloat(subTotal)//.toFixed(2)
     }, () => {
       this.setState({
-        taxAmmount: parseFloat(parseFloat(subTotal) * (this.state.taxRate / 100)).toFixed(2).toString()
+        taxAmount: parseFloat(parseFloat(subTotal) * (this.state.taxRate / 100)).toFixed(2).toString()
       }, () => {
         this.setState({
-          discountAmmount: parseFloat(parseFloat(subTotal) * (this.state.discountRate / 100)).toFixed(2).toString()
+          discountAmount: parseFloat(parseFloat(subTotal) * (this.state.discountRate / 100)).toFixed(2).toString()
         }, () => {
           this.setState({
-            total: ((subTotal - this.state.discountAmmount) + parseFloat(this.state.taxAmmount)).toFixed(2)
+            total: ((subTotal - this.state.discountAmount) + parseFloat(this.state.taxAmount)).toFixed(2)
           });
         });
       });
@@ -134,7 +132,7 @@ class InvoiceForm extends React.Component {
     this.handleCalculateTotal()
     this.setState({isOpen: true})
   };
-  closeModal = (event) => this.setState({isOpen: false});
+  closeModal = () => this.setState({isOpen: false});
   render() {
     return (<Form onSubmit={this.openModal}>
       <Row>
@@ -198,7 +196,7 @@ class InvoiceForm extends React.Component {
                   <span className="fw-bold">Zniżka:</span>
                   <span>
                     <span className="small ">({this.state.discountRate || 0}%)&nbsp;</span>
-                    {this.state.discountAmmount || 0}
+                    {this.state.discountAmount || 0}
                     {this.state.currency}</span>
                 </div>
                 <div className="d-flex flex-row align-items-start justify-content-between mt-2">
@@ -206,7 +204,7 @@ class InvoiceForm extends React.Component {
                   </span>
                   <span>
                     <span className="small ">({this.state.taxRate || 0}%)&nbsp;</span>
-                    {this.state.taxAmmount || 0}
+                    {this.state.taxAmount || 0}
                     {this.state.currency}</span>
                 </div>
                 <hr/>
@@ -229,7 +227,7 @@ class InvoiceForm extends React.Component {
         <Col md={4} lg={3}>
           <div className="sticky-top pt-md-3 pt-xl-4">
             <Button variant="primary" type="submit" className="d-block w-100">Sprawdź poprawność faktury</Button>
-            <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmmount={this.state.taxAmmount} discountAmmount={this.state.discountAmmount} total={this.state.total}/>
+            <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmount={this.state.taxAmount} discountAmount={this.state.discountAmount} total={this.state.total}/>
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Waluta:</Form.Label>
               <Form.Select onChange={event => this.onCurrencyChange({currency: event.target.value})} className="btn btn-light my-1" aria-label="Change Currency">
