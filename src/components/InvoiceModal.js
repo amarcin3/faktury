@@ -7,12 +7,12 @@ import Table from 'react-bootstrap/Table';
 import Modal from 'react-bootstrap/Modal';
 import { BiPaperPlane, BiCloudDownload } from "react-icons/bi";
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf'
+import JsPDF from 'jspdf'
 
 function GenerateInvoice() {
   html2canvas(document.querySelector("#invoiceCapture"),{scale: 2}).then((canvas) => {
     const imgData = canvas.toDataURL('image/png', 1.0);
-    const pdf = new jsPDF({
+    const pdf = new JsPDF({
       orientation: 'portrait',
       unit: 'pt',
       format: [612, 792]
