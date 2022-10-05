@@ -90,7 +90,7 @@ class InvoiceModal extends React.Component {
                           {item.quantity}
                         </td>
                         <td>
-                          {item.name} - {item.description}
+                          {item.name}   {item.description}
                         </td>
                         <td className="text-end" style={{width: '100px'}}>{this.props.currency} {item.price}</td>
                         <td className="text-end" style={{width: '100px'}}>{this.props.currency} {item.price * item.quantity}</td>

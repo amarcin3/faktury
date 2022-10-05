@@ -13,24 +13,21 @@ class EditableField extends React.Component {
           type={this.props.cellData.type}
           placeholder={this.props.cellData.placeholder}
           min={this.props.cellData.min}
+
+          number={this.props.cellData.number}
           name={this.props.cellData.name}
+          PKWiU={this.props.cellData.PKWiU}
+          tax={this.props.cellData.tax}
+
           id={this.props.cellData.id}
           value={this.props.cellData.value}
           step={this.props.cellData.step}
           presicion={this.props.cellData.precision}
           aria-label={this.props.cellData.name}
           onChange={this.props.onItemizedItemEdit}
-          required
+          //required
         />
-          {
-              this.props.cellData.leading != null &&
-              <InputGroup.Text
-                  className="bg-light fw-bold border-0 text-secondary px-2">
-            <span className="border border-2 border-secondary rounded-circle d-flex align-items-center justify-content-center small" style={{width: '20px', height: '20px'}}>
-              {this.props.cellData.leading}
-            </span>
-              </InputGroup.Text>
-          }
+
       </InputGroup>
     );
   }

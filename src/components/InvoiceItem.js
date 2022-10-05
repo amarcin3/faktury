@@ -20,9 +20,13 @@ class InvoiceItem extends React.Component {
         <Table>
           <thead>
             <tr>
+              <th>L.p</th>
               <th>Nazwa produktu</th>
               <th>Ilość</th>
-              <th>Cena</th>
+              <th>PKWiU</th>
+              <th>Cena netto</th>
+              <th>Podatek VAT</th>
+              <th>Cena brutto</th>
               <th className="text-center">Działania</th>
             </tr>
           </thead>
@@ -43,6 +47,18 @@ class ItemRow extends React.Component {
   render() {
     return (
       <tr>
+        <td style={{minWidth: '43px'}}>
+          <EditableField
+              onItemizedItemEdit={this.props.onItemizedItemEdit}
+              cellData={{
+                type: "text",
+                name: "number",
+                min: 1,
+                value: this.props.item.number,
+                id: this.props.item.id,
+              }}/>
+        </td>
+
         <td style={{width: '100%'}}>
           <EditableField
             onItemizedItemEdit={this.props.onItemizedItemEdit}
@@ -63,6 +79,7 @@ class ItemRow extends React.Component {
             id: this.props.item.id
           }}/>
         </td>
+
         <td style={{minWidth: '70px'}}>
           <EditableField
           onItemizedItemEdit={this.props.onItemizedItemEdit}
@@ -75,14 +92,55 @@ class ItemRow extends React.Component {
             id: this.props.item.id,
           }}/>
         </td>
-        <td style={{minWidth: '130px'}}>
+
+        <td style={{minWidth: '70px'}}>
+            <EditableField
+            onItemizedItemEdit={this.props.onItemizedItemEdit}
+            cellData={{
+                type: "text",
+                name: "PKWiU",
+                value: this.props.item.PKWiU,
+                id: this.props.item.id
+            }}/>
+      </td>
+
+          <td style={{minWidth: '100px'}}>
+              <EditableField
+                  onItemizedItemEdit={this.props.onItemizedItemEdit}
+                  cellData={{
+                      type: "number",
+                      name: "price",
+                      min: 0.00,
+                      step: "0.01",
+                      precision: 2,
+                      textAlign: "text-end",
+                      value: this.props.item.price,
+                      id: this.props.item.id,
+                  }}/>
+          </td>
+
+        <td style={{minWidth: '100px'}}>
+          <EditableField
+              onItemizedItemEdit={this.props.onItemizedItemEdit}
+              cellData={{
+                type: "number",
+                name: "tax",
+                placeholder: 0,
+                min: 0,
+                step: "1",
+                precision: 2,
+                textAlign: "text-end",
+                value: this.props.item.tax,
+                id: this.props.item.id,
+              }}/>
+        </td>
+        <td style={{minWidth: '100px'}}>
           <EditableField
             onItemizedItemEdit={this.props.onItemizedItemEdit}
             cellData={{
-            leading: this.props.currency,
             type: "number",
             name: "price",
-            min: 0.01,
+            min: 0.00,
             step: "0.01",
             precision: 2,
             textAlign: "text-end",
