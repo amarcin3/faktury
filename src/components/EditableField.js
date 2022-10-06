@@ -18,6 +18,10 @@ class EditableField extends React.Component {
           name={this.props.cellData.name}
           PKWiU={this.props.cellData.PKWiU}
           tax={this.props.cellData.tax}
+          discount={this.props.cellData.discount}
+          netPrice={this.props.cellData.netPrice}
+          netValue={this.props.cellData.netValue}
+          grossValue={this.props.cellData.grossValue}
 
           id={this.props.cellData.id}
           value={this.props.cellData.value}

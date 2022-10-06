@@ -46,9 +46,15 @@ class InvoiceForm extends React.Component {
     this.state.items = [
       {
         id: '',
+        number: '1',
         name: '',
+        PKWiU: '',
+        netPrice: 0.00,
+        netValue: '0.00',
+        tax: 0,
+        discount: 0,
+        grossValue: '0.00',
         description: '',
-        price: '1.00',
         quantity: 1
       }
     ];
@@ -64,23 +70,29 @@ class InvoiceForm extends React.Component {
   };
   handleAddEvent() {
     let id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
+    let number = this.state.items.length + 1;
     var items = {
       id: id,
+      number: number,
       name: '',
-      price: '1.00',
+      PKWiU: '',
+      netPrice: 0.00,
+      netValue: '0.00',
+      tax: 0,
+      discount: 0,
+      grossValue: '0.00',
       description: '',
       quantity: 1
     };
     this.state.items.push(items);
     this.setState(this.state.items);
-    //this.onItemizedItemEdit(this);
   }
   handleCalculateTotal() {
     var items = this.state.items;
     var subTotal = 0;
 
     items.map(function(items) {
-      subTotal = parseFloat(parseFloat(subTotal + (parseFloat(items.price).toFixed(2) * parseInt(items.quantity))).toFixed(2));
+      subTotal = parseFloat(parseFloat(subTotal + (parseFloat(items.netPrice).toFixed(2) * parseInt(items.quantity))).toFixed(2));
       return subTotal;
     });
 
@@ -108,6 +120,7 @@ class InvoiceForm extends React.Component {
       value: evt.target.value
     };
     var items = this.state.items.slice();
+
     var newItems = items.map(function(items) {
       for (var key in items) {
         if (key === item.name && items.id === item.id) {
@@ -117,6 +130,27 @@ class InvoiceForm extends React.Component {
       return items;
     });
     this.setState({items: newItems});
+
+
+    // Specific for input field
+    var tempKey = items.map(function(items) {
+      for (var key in items) {
+        if (key === item.name && items.id === item.id) {
+          return key;
+        }
+      }
+    });
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].id === item.id) {
+        //Below: Always calculating value, resulting in disability to edit value
+        items[i].netValue = items[i].netPrice * items[i].quantity;
+        // Below: Changing value only if it's field wasn't changed
+          if(tempKey[i] === 'netPrice' || tempKey[i] === 'tax' || tempKey[i] === 'quantity') {
+            //items[i].grossPrice = parseFloat((parseFloat(items[i].netPrice) + (parseFloat(items[i].netPrice) * (items[i].tax / 100))).toFixed(2));
+          }
+      }
+    }
+
     this.handleCalculateTotal();
   };
   editField = (event) => {
