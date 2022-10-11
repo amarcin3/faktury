@@ -46,14 +46,14 @@ class InvoiceForm extends React.Component {
     this.state.items = [
       {
         id: '',
-        number: '1',
+        number: 1,
         name: '',
         PKWiU: '',
         netPrice: 0.00,
-        netValue: '0.00',
+        netValue: 0.00,
         tax: 0,
-        discount: 0,
-        grossValue: '0.00',
+        discount: 0.00,
+        grossValue: 0.00,
         description: '',
         quantity: 1
       }
@@ -77,10 +77,10 @@ class InvoiceForm extends React.Component {
       name: '',
       PKWiU: '',
       netPrice: 0.00,
-      netValue: '0.00',
+      netValue: 0.00,
       tax: 0,
-      discount: 0,
-      grossValue: '0.00',
+      discount: 0.00,
+      grossValue: 0.00,
       description: '',
       quantity: 1
     };
@@ -136,18 +136,54 @@ class InvoiceForm extends React.Component {
     var tempKey = items.map(function(items) {
       for (var key in items) {
         if (key === item.name && items.id === item.id) {
+          items[key] = item.value;
           return key;
         }
       }
+      return items;
     });
     for (var i = 0; i < items.length; i++) {
       if (items[i].id === item.id) {
+
         //Below: Always calculating value, resulting in disability to edit value
-        items[i].netValue = items[i].netPrice * items[i].quantity;
+        //items[i].netValue = items[i].netPrice * items[i].quantity * (1 - items[i].discount/100);
         // Below: Changing value only if it's field wasn't changed
-          if(tempKey[i] === 'netPrice' || tempKey[i] === 'tax' || tempKey[i] === 'quantity') {
-            //items[i].grossPrice = parseFloat((parseFloat(items[i].netPrice) + (parseFloat(items[i].netPrice) * (items[i].tax / 100))).toFixed(2));
+
+          if (tempKey[i] === 'discount' || tempKey[i] === 'quantity' || tempKey[i] === 'netPrice') {
+            if (items[i].discount === '') items[i].discount = '0';
+            items[i].discount = parseInt(items[i].discount);
+            if (items[i].quantity === '') items[i].quantity = '1';
+            items[i].quantity = parseInt(items[i].quantity);
+            if (items[i].netPrice === '') items[i].netPrice = '0';
+            items[i].netPrice = parseFloat(items[i].netPrice);
+            items[i].netValue = Math.round((items[i].netPrice * items[i].quantity * (1 - items[i].discount/100)+ Number.EPSILON) * 100) / 100;
+            items[i].taxAmount = Math.round((items[i].netValue * items[i].tax/100 * (1 - items[i].discount/100)+ Number.EPSILON) * 100) / 100;
+            items[i].grossValue = Math.round((items[i].netValue + items[i].taxAmount+ Number.EPSILON) * 100) / 100;
           }
+          if (tempKey[i] === 'netValue') {
+            if (items[i].netValue === '') items[i].netValue = '0';
+            items[i].netValue = parseFloat(items[i].netValue);
+            items[i].netPrice = Math.round((items[i].netValue * (1 + items[i].discount / (100 - items[i].discount)) / items[i].quantity+ Number.EPSILON) * 100) / 100;
+            items[i].taxAmount = Math.round((items[i].netValue * items[i].tax/100 * (1 - items[i].discount/100)+ Number.EPSILON) * 100) / 100;
+            items[i].grossValue = Math.round((items[i].netValue + items[i].taxAmount+ Number.EPSILON) * 100) / 100;
+          }
+          if (tempKey[i] === 'tax') {
+            if (items[i].tax === '') items[i].tax = '0';
+            items[i].tax = parseInt(items[i].tax);
+            items[i].taxAmount = Math.round((items[i].netValue * items[i].tax/100 * (1 - items[i].discount/100)+ Number.EPSILON) * 100) / 100;
+            items[i].grossValue = Math.round((items[i].netValue + items[i].taxAmount+ Number.EPSILON) * 100) / 100;
+          }
+          if (tempKey[i] === 'grossValue') {
+            if (items[i].grossValue === '') items[i].grossValue = '0';
+            items[i].grossValue = parseFloat(items[i].grossValue);
+            items[i].netValue = Math.round((items[i].grossValue / (1 + items[i].tax / 100) * (1 - items[i].discount/100)+ Number.EPSILON) * 100) / 100;
+            items[i].taxAmount = Math.round((items[i].grossValue - items[i].netValue+ Number.EPSILON) * 100) / 100;
+            items[i].netValue = Math.round((items[i].grossValue - items[i].taxAmount+ Number.EPSILON) * 100) / 100;
+            items[i].netPrice = Math.round((items[i].netValue * (1 + items[i].discount / (100 - items[i].discount)) / items[i].quantity + Number.EPSILON) * 100) / 100;
+          }
+        console.log(items);
+            //items[i].grossPrice = parseFloat((parseFloat(items[i].netPrice) + (parseFloat(items[i].netPrice) * (items[i].tax / 100))).toFixed(2));
+
       }
     }
 
@@ -174,9 +210,9 @@ class InvoiceForm extends React.Component {
         <Col md={8} lg={9}>
           <Card className="p-4 p-xl-5 my-3 my-xl-4">
             <div className="d-flex flex-row align-items-start justify-content-between mb-3">
-              <div class="d-flex flex-column">
+              <div className="d-flex flex-column">
                 <div className="d-flex flex-column">
-                  <div class="mb-2">
+                  <div className="mb-2">
                     <span className="fw-bold">Data&nbsp;wystawienia:&nbsp;</span>
                     <span className="current-date">{new Date().toLocaleDateString()}</span>
                   </div>
@@ -272,7 +308,7 @@ class InvoiceForm extends React.Component {
                 <option value="¥">JPY (Japanese Yen)</option>
                 <option value="$">CAD (Canadian Dollar)</option>
                 <option value="$">AUD (Australian Dollar)</option>
-                <option value="$">SGD (Signapore Dollar)</option>
+                <option value="$">SGD (Singapore Dollar)</option>
                 <option value="¥">CNY (Chinese Renminbi)</option>
               </Form.Select>
             </Form.Group>

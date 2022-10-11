@@ -16,12 +16,12 @@ class EditableField extends React.Component {
 
           number={this.props.cellData.number}
           name={this.props.cellData.name}
-          PKWiU={this.props.cellData.PKWiU}
+          pkwiu={this.props.cellData.PKWiU}
           tax={this.props.cellData.tax}
           discount={this.props.cellData.discount}
-          netPrice={this.props.cellData.netPrice}
-          netValue={this.props.cellData.netValue}
-          grossValue={this.props.cellData.grossValue}
+          netprice={this.props.cellData.netPrice}
+          netvalue={this.props.cellData.netValue}
+          grossvalue={this.props.cellData.grossValue}
 
           id={this.props.cellData.id}
           value={this.props.cellData.value}

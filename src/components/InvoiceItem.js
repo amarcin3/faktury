@@ -104,7 +104,7 @@ class ItemRow extends React.Component {
                 id: this.props.item.id
             }}/>
       </td>
-          <td style={{minWidth: '100px'}}>
+          <td style={{minWidth: '75px'}}>
               <EditableField
                   onItemizedItemEdit={this.props.onItemizedItemEdit}
                   cellData={{
@@ -124,7 +124,7 @@ class ItemRow extends React.Component {
                   cellData={{
                       type: "number",
                       name: "netPrice",
-                      min: 0.00,
+                      min: "0.00",
                       step: "0.01",
                       precision: 2,
                       textAlign: "text-end",
@@ -133,19 +133,21 @@ class ItemRow extends React.Component {
                   }}/>
           </td>
 
-          <td style={{minWidth: '70px'}}>
+          <td style={{minWidth: '100px'}}>
               <EditableField
                   onItemizedItemEdit={this.props.onItemizedItemEdit}
                   cellData={{
-                      type: "text",
+                      type: "number",
                       name: "netValue",
+                      step: "0.01",
+                      precision: 2,
                       textAlign: "text-end",
                       value: this.props.item.netValue,
                       id: this.props.item.id,
                   }}/>
           </td>
 
-        <td style={{minWidth: '100px'}}>
+        <td style={{minWidth: '75px'}}>
           <EditableField
               onItemizedItemEdit={this.props.onItemizedItemEdit}
               cellData={{
@@ -159,12 +161,14 @@ class ItemRow extends React.Component {
                 id: this.props.item.id,
               }}/>
         </td>
-          <td style={{minWidth: '70px'}}>
+          <td style={{minWidth: '100px'}}>
               <EditableField
                   onItemizedItemEdit={this.props.onItemizedItemEdit}
                   cellData={{
-                      type: "text",
+                      type: "number",
                       name: "grossValue",
+                      step: "0.01",
+                      precision: 2,
                       textAlign: "text-end",
                       value: this.props.item.grossValue,
                       id: this.props.item.id,
