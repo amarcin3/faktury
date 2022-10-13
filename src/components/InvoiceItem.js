@@ -55,6 +55,7 @@ class ItemRow extends React.Component {
               cellData={{
                 type: "text",
                 name: "number",
+                  textAlign: "text-center",
                 value: this.props.item.number,
                 id: this.props.item.id,
               }}/>

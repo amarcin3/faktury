@@ -60,18 +60,18 @@ class InvoiceForm extends React.Component {
     ];
     this.editField = this.editField.bind(this);
   }
-  componentDidMount(prevProps) {
+  componentDidMount() {
     this.handleCalculateTotal()
   }
   handleRowDel(items) {
-    var index = this.state.items.indexOf(items);
+    let index = this.state.items.indexOf(items);
     this.state.items.splice(index, 1);
-    this.setState(this.state.items);
+    this.setState(this.state.items)
   };
   handleAddEvent() {
     let id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
     let number = this.state.items.length + 1;
-    var items = {
+    let items = {
       id: id,
       number: number,
       name: '',
@@ -88,8 +88,8 @@ class InvoiceForm extends React.Component {
     this.setState(this.state.items);
   }
   handleCalculateTotal() {
-    var items = this.state.items;
-    var subTotal = 0;
+    let items = this.state.items;
+    let subTotal = 0;
 
     items.map(function(items) {
       subTotal = parseFloat(parseFloat(subTotal + (parseFloat(items.netPrice).toFixed(2) * parseInt(items.quantity))).toFixed(2));
@@ -114,15 +114,15 @@ class InvoiceForm extends React.Component {
 
   };
   onItemizedItemEdit(evt) {
-    var item = {
+    let item = {
       id: evt.target.id,
       name: evt.target.name,
       value: evt.target.value
     };
-    var items = this.state.items.slice();
+    let items = this.state.items.slice();
 
-    var newItems = items.map(function(items) {
-      for (var key in items) {
+    let newItems = items.map(function (items) {
+      for (let key in items) {
         if (key === item.name && items.id === item.id) {
           items[key] = item.value;
         }
@@ -133,8 +133,8 @@ class InvoiceForm extends React.Component {
 
 
     // Specific for input field
-    var tempKey = items.map(function(items) {
-      for (var key in items) {
+    let tempKey = items.map(function (items) {
+      for (let key in items) {
         if (key === item.name && items.id === item.id) {
           items[key] = item.value;
           return key;
@@ -142,7 +142,8 @@ class InvoiceForm extends React.Component {
       }
       return items;
     });
-    for (var i = 0; i < items.length; i++) {
+    for (let i = 0; i < items.length; i++) {
+      items[i].number = i + 1;
       if (items[i].id === item.id) {
 
         //Below: Always calculating value, resulting in disability to edit value
