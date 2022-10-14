@@ -70,7 +70,7 @@ class InvoiceModal extends React.Component {
                 </Col>
                 <Col md={4}>
                   <div className="fw-bold mt-2">Data wystawienia:</div>
-                  <div>{this.props.info.dateOfIssue||''}</div>
+                  <div>{this.props.info.dueDate||''}</div>
                 </Col>
               </Row>
               <Table className="mb-0">

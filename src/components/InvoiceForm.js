@@ -1,3 +1,5 @@
+// noinspection CommaExpressionJS
+
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Row from 'react-bootstrap/Row';
@@ -8,7 +10,14 @@ import Card from 'react-bootstrap/Card';
 import InvoiceItem from './InvoiceItem';
 import InvoiceModal from './InvoiceModal';
 
+const dt = new Date();
+const mm = dt.getMonth() + 1;
+const dd = dt.getDate();
+const yyyy = dt.getFullYear();
+const format = yyyy + '-' + mm + '-' + dd;
+
 class InvoiceForm extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -16,7 +25,8 @@ class InvoiceForm extends React.Component {
       currency: 'zł',
       currentDate: '',
       invoiceNumber: 1,
-      dateOfIssue: '',
+      dateOfIssue: format,
+      dueDate: format,
 
       billToNip: '',
       billTo: '',
@@ -230,14 +240,17 @@ class InvoiceForm extends React.Component {
             <div className="d-flex flex-row align-items-start justify-content-between mb-3">
               <div className="d-flex flex-column">
                 <div className="d-flex flex-column">
-                  <div className="mb-2">
-                    <span className="fw-bold">Data&nbsp;wystawienia:&nbsp;</span>
-                    <span className="current-date">{new Date().toLocaleDateString()}</span>
+                  <div className="d-flex flex-row align-items-center">
+                    <span className="fw-bold d-block me-2">Data&nbsp;wystawienia:&nbsp;</span>
+                    <Form.Control type="date" value={this.state.dateOfIssue} name={"dateOfIssue"} onChange={(event) => this.editField(event)} style={{
+                      maxWidth: '150px'
+                    }} required="required"/>
                   </div>
                 </div>
+                <span className="fw-bold d-block me-2">-----------------------------------------------</span>
                 <div className="d-flex flex-row align-items-center">
-                  <span className="fw-bold d-block me-2">Termin&nbsp;płatności:&nbsp;</span>
-                  <Form.Control type="date" value={this.state.dateOfIssue} name={"dateOfIssue"} onChange={(event) => this.editField(event)} style={{
+                  <span className="fw-bold d-block me-2">Termin&nbsp;płatności:&nbsp;&nbsp;</span>
+                  <Form.Control type="date" value={this.state.dueDate} name={"dueDate"} onChange={(event) => this.editField(event)} style={{
                       maxWidth: '150px'
                     }} required="required"/>
                 </div>
