@@ -7,7 +7,6 @@ import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import InvoiceItem from './InvoiceItem';
 import InvoiceModal from './InvoiceModal';
-import InputGroup from 'react-bootstrap/InputGroup';
 
 class InvoiceForm extends React.Component {
   constructor(props) {
@@ -38,10 +37,6 @@ class InvoiceForm extends React.Component {
       notes: '',
       total: '0.00',
       subTotal: '0.00',
-      taxRate: '',
-      taxAmount: '0.00',
-      discountRate: '',
-      discountAmount: '0.00'
     };
     this.state.items = [
       {
@@ -49,11 +44,13 @@ class InvoiceForm extends React.Component {
         number: 1,
         name: '',
         PKWiU: '',
-        netPrice: 0.00,
-        netValue: 0.00,
+        netPrice: 0,
+        netValue: 0,
         tax: 0,
-        discount: 0.00,
-        grossValue: 0.00,
+        taxAmount: 0,
+        discount: 0,
+        discountAmount: 0,
+        grossValue: 0,
         description: '',
         quantity: 1
       }
@@ -76,13 +73,15 @@ class InvoiceForm extends React.Component {
       number: number,
       name: '',
       PKWiU: '',
-      netPrice: 0.00,
-      netValue: 0.00,
+      netPrice: 0,
+      netValue: 0,
       tax: 0,
-      discount: 0.00,
-      grossValue: 0.00,
+      taxAmount: 0,
+      discount: 0,
+      discountAmount: 0,
+      grossValue: 0,
       description: '',
-      quantity: 1
+      quantity: 0
     };
     this.state.items.push(items);
     this.setState(this.state.items);
@@ -90,23 +89,34 @@ class InvoiceForm extends React.Component {
   handleCalculateTotal() {
     let items = this.state.items;
     let subTotal = 0;
+    let taxAmount = 0;
+    let discountAmount = 0;
+    let total = 0;
 
     items.map(function(items) {
-      subTotal = parseFloat(parseFloat(subTotal + (parseFloat(items.netPrice).toFixed(2) * parseInt(items.quantity))).toFixed(2));
-      return subTotal;
+      subTotal = items.netValue + subTotal;
+      taxAmount = items.taxAmount + taxAmount;
+      discountAmount = items.discountAmount + discountAmount;
+      total = subTotal + taxAmount;
+      return (subTotal, taxAmount, discountAmount, total);
     });
 
+    subTotal = Math.round(subTotal * 100 + Number.EPSILON) / 100;
+    taxAmount = Math.round(taxAmount * 100 + Number.EPSILON) / 100;
+    discountAmount = Math.round(discountAmount * 100 + Number.EPSILON) / 100;
+    total = Math.round(total * 100 + Number.EPSILON) / 100;
+
     this.setState({
-      subTotal: parseFloat(subTotal)//.toFixed(2)
+      subTotal: subTotal,
     }, () => {
       this.setState({
-        taxAmount: parseFloat(parseFloat(subTotal) * (this.state.taxRate / 100)).toFixed(2).toString()
+        taxAmount: taxAmount,
       }, () => {
         this.setState({
-          discountAmount: parseFloat(parseFloat(subTotal) * (this.state.discountRate / 100)).toFixed(2).toString()
+          discountAmount: discountAmount,
         }, () => {
           this.setState({
-            total: ((subTotal - this.state.discountAmount) + parseFloat(this.state.taxAmount)).toFixed(2)
+            total: total
           });
         });
       });
@@ -147,39 +157,46 @@ class InvoiceForm extends React.Component {
       if (items[i].id === item.id) {
 
         //Below: Always calculating value, resulting in disability to edit value
-        //items[i].netValue = items[i].netPrice * items[i].quantity * (1 - items[i].discount/100);
-        // Below: Changing value only if it's field wasn't changed
 
+        // Below: Changing value only if it's field wasn't changed
           if (tempKey[i] === 'discount' || tempKey[i] === 'quantity' || tempKey[i] === 'netPrice') {
+
             if (items[i].discount === '') items[i].discount = '0';
             items[i].discount = parseInt(items[i].discount);
             if (items[i].quantity === '') items[i].quantity = '1';
             items[i].quantity = parseInt(items[i].quantity);
             if (items[i].netPrice === '') items[i].netPrice = '0';
             items[i].netPrice = parseFloat(items[i].netPrice);
+
             items[i].netValue = Math.round((items[i].netPrice * items[i].quantity * (1 - items[i].discount/100)+ Number.EPSILON) * 100) / 100;
-            items[i].taxAmount = Math.round((items[i].netValue * items[i].tax/100 * (1 - items[i].discount/100)+ Number.EPSILON) * 100) / 100;
+            items[i].discountAmount = Math.round((items[i].netPrice * items[i].quantity * (items[i].discount/100)+ Number.EPSILON) * 100) / 100;
+            items[i].taxAmount = Math.round((items[i].netValue *  (items[i].tax/100) + Number.EPSILON) * 100) / 100;
             items[i].grossValue = Math.round((items[i].netValue + items[i].taxAmount+ Number.EPSILON) * 100) / 100;
           }
           if (tempKey[i] === 'netValue') {
+
             if (items[i].netValue === '') items[i].netValue = '0';
             items[i].netValue = parseFloat(items[i].netValue);
+
             items[i].netPrice = Math.round((items[i].netValue * (1 + items[i].discount / (100 - items[i].discount)) / items[i].quantity+ Number.EPSILON) * 100) / 100;
-            items[i].taxAmount = Math.round((items[i].netValue * items[i].tax/100 * (1 - items[i].discount/100)+ Number.EPSILON) * 100) / 100;
+            items[i].taxAmount = Math.round((items[i].netValue *  (items[i].tax/100) + Number.EPSILON) * 100) / 100;
             items[i].grossValue = Math.round((items[i].netValue + items[i].taxAmount+ Number.EPSILON) * 100) / 100;
           }
           if (tempKey[i] === 'tax') {
+
             if (items[i].tax === '') items[i].tax = '0';
             items[i].tax = parseInt(items[i].tax);
-            items[i].taxAmount = Math.round((items[i].netValue * items[i].tax/100 * (1 - items[i].discount/100)+ Number.EPSILON) * 100) / 100;
+
+            items[i].taxAmount = Math.round((items[i].netValue *  (items[i].tax/100) + Number.EPSILON) * 100) / 100;
             items[i].grossValue = Math.round((items[i].netValue + items[i].taxAmount+ Number.EPSILON) * 100) / 100;
           }
           if (tempKey[i] === 'grossValue') {
+
             if (items[i].grossValue === '') items[i].grossValue = '0';
             items[i].grossValue = parseFloat(items[i].grossValue);
-            items[i].netValue = Math.round((items[i].grossValue / (1 + items[i].tax / 100) * (1 - items[i].discount/100)+ Number.EPSILON) * 100) / 100;
+
+            items[i].netValue = Math.round((items[i].grossValue / (1 + items[i].tax / 100) + Number.EPSILON) * 100) / 100;
             items[i].taxAmount = Math.round((items[i].grossValue - items[i].netValue+ Number.EPSILON) * 100) / 100;
-            items[i].netValue = Math.round((items[i].grossValue - items[i].taxAmount+ Number.EPSILON) * 100) / 100;
             items[i].netPrice = Math.round((items[i].netValue * (1 + items[i].discount / (100 - items[i].discount)) / items[i].quantity + Number.EPSILON) * 100) / 100;
           }
         console.log(items);
@@ -246,13 +263,13 @@ class InvoiceForm extends React.Component {
               </Col>
               <Col>
                 <Form.Label className="fw-bold">Nabywca:</Form.Label>
-                <Form.Control placeholder={"NIP"}                          value={this.state.billToNip}              type="text"  name="billToNip"            className="my-2" autoComplete="Nip"              onChange={(event) => this.editField(event)}/>
-                <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3} value={this.state.billTo}                 type="text"  name="billTo"               className="my-2" autoComplete="name"             onChange={(event) => this.editField(event)} />
-                <Form.Control placeholder={"Adres firmy nabywcy"}          value={this.state.billToAddress}          type="text"  name="billToAddress"        className="my-2" autoComplete="Address"          onChange={(event) => this.editField(event)}/>
-                <Form.Control placeholder={"Nr telefonu nabywcy"}          value={this.state.billToPhone}            type="text"  name="billToPhone"          className="my-2" autoComplete="Phone"            onChange={(event) => this.editField(event)}/>
-                <Form.Control placeholder={"Adres email nabywcy"}          value={this.state.billToEmail}            type="email" name="billToEmail"          className="my-2" autoComplete="email"            onChange={(event) => this.editField(event)} />
-                <Form.Control placeholder={"Adres rozliczeniowy"}          value={this.state.billToBillingAddress}   type="text"  name="billToBillingAddress" className="my-2" autoComplete="BillingAddress"   onChange={(event) => this.editField(event)}/>
-                <Form.Control placeholder={"Bank"}                         value={this.state.billToBank}             type="text"  name="billToBank"           className="my-2" autoComplete="Bank"             onChange={(event) => this.editField(event)}/>
+                <Form.Control placeholder={"NIP"}                             value={this.state.billToNip}              type="text"  name="billToNip"              className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
+                <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billTo}                 type="text"  name="billTo"                 className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} />
+                <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billToAddress}          type="text"  name="billToAddress"          className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)}/>
+                <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billToPhone}            type="text"  name="billToPhone"            className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/>
+                <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billToEmail}            type="email" name="billToEmail"            className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} />
+                <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billToBillingAddress}   type="text"  name="billToBillingAddress"   className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
+                <Form.Control placeholder={"Bank"}                            value={this.state.billToBank}             type="text"  name="billToBank"             className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
               </Col>
             </Row>
             <InvoiceItem onItemizedItemEdit={this.onItemizedItemEdit.bind(this)} onRowAdd={this.handleAddEvent.bind(this)} onRowDel={this.handleRowDel.bind(this)} currency={this.state.currency} items={this.state.items}/>
@@ -265,17 +282,15 @@ class InvoiceForm extends React.Component {
                     {this.state.currency}</span>
                 </div>
                 <div className="d-flex flex-row align-items-start justify-content-between mt-2">
-                  <span className="fw-bold">Zniżka:</span>
+                  <span className="fw-bold">Rabat:</span>
                   <span>
-                    <span className="small ">({this.state.discountRate || 0}%)&nbsp;</span>
                     {this.state.discountAmount || 0}
                     {this.state.currency}</span>
                 </div>
                 <div className="d-flex flex-row align-items-start justify-content-between mt-2">
-                  <span className="fw-bold">Podatek&nbsp;VAT:
+                  <span className="fw-bold">Wartość&nbsp;podatku&nbsp;VAT:
                   </span>
                   <span>
-                    <span className="small ">({this.state.taxRate || 0}%)&nbsp;</span>
                     {this.state.taxAmount || 0}
                     {this.state.currency}</span>
                 </div>
@@ -312,24 +327,6 @@ class InvoiceForm extends React.Component {
                 <option value="$">SGD (Singapore Dollar)</option>
                 <option value="¥">CNY (Chinese Renminbi)</option>
               </Form.Select>
-            </Form.Group>
-            <Form.Group className="my-3">
-              <Form.Label className="fw-bold">Tax rate:</Form.Label>
-              <InputGroup className="my-1 flex-nowrap">
-                <Form.Control name="taxRate" type="number" value={this.state.taxRate} onChange={(event) => this.editField(event)} className="bg-white border" placeholder="0.0" min="0.00" step="0.01" max="100.00"/>
-                <InputGroup.Text className="bg-light fw-bold text-secondary small">
-                  %
-                </InputGroup.Text>
-              </InputGroup>
-            </Form.Group>
-            <Form.Group className="my-3">
-              <Form.Label className="fw-bold">Discount rate:</Form.Label>
-              <InputGroup className="my-1 flex-nowrap">
-                <Form.Control name="discountRate" type="number" value={this.state.discountRate} onChange={(event) => this.editField(event)} className="bg-white border" placeholder="0.0" min="0.00" step="0.01" max="100.00"/>
-                <InputGroup.Text className="bg-light fw-bold text-secondary small">
-                  %
-                </InputGroup.Text>
-              </InputGroup>
             </Form.Group>
           </div>
         </Col>

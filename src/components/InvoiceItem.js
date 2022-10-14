@@ -25,11 +25,11 @@ class InvoiceItem extends React.Component {
               <th>Ilość</th>
               <th>PKWiU</th>
               <th>Rabat [%]</th>
-              <th>Cena netto [zł]</th>
+              <th>Cena jednostkowa [zł]</th>
               <th>Wartość netto [zł]</th>
               <th>Podatek VAT [%]</th>
               <th>Wartość brutto [zł]</th>
-              <th className="text-center">Działania</th>
+              <th className="text-center">Usuń</th>
             </tr>
           </thead>
           <tbody>
@@ -141,6 +141,7 @@ class ItemRow extends React.Component {
                       type: "number",
                       name: "netValue",
                       step: "0.01",
+                      min: 0,
                       precision: 2,
                       textAlign: "text-end",
                       value: this.props.item.netValue,
@@ -169,6 +170,7 @@ class ItemRow extends React.Component {
                       type: "number",
                       name: "grossValue",
                       step: "0.01",
+                      min: 0,
                       precision: 2,
                       textAlign: "text-end",
                       value: this.props.item.grossValue,
