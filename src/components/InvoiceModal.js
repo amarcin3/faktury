@@ -23,8 +23,8 @@ function GenerateInvoice() {
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     //show pdf in browser
-    //pdf.output('dataurlnewwindow', 'Faktura.pdf');
-    pdf.save('Faktura.pdf');
+    pdf.output('dataurlnewwindow', 'Faktura.pdf');
+    //pdf.save('Faktura.pdf');
   });
 }
 
