@@ -96,6 +96,38 @@ class InvoiceForm extends React.Component {
         this.state.items.push(items);
         this.setState(this.state.items);
     }
+    diffToHtml(items, TotalValue, namePercent, nameAmount) {
+        let percent = [];
+        let amount = [];
+        let output = "";
+
+        for (let i = 0; i < items.length; i++) {
+            if (percent.includes(items[i][namePercent])) {
+                let index = percent.indexOf(items[i][namePercent]);
+                amount[index] = items[i][nameAmount] + amount[index];
+            } else {
+                percent.push(items[i][namePercent]);
+                amount.push(items[i][nameAmount]);
+            }
+        }
+        let list = [];
+        for (let j = 0; j < percent.length; j++) {
+            list.push({'percent': percent[j], 'amount': amount[j]});
+        }
+        list.sort(function(a, b) {
+            return ((b.percent < a.percent) ? -1 : ((b.percent === a.percent) ? 0 : 1));
+        });
+        for (let k = 0; k < list.length; k++) {
+            percent[k] = list[k].percent;
+            amount[k] = list[k].amount;
+        }
+        for (let i = 0; i < percent.length; i++) {
+            output = output + '<br><span class="float-end"> (' + percent[i] + '%)&nbsp;&nbsp;&nbsp-&nbsp;&nbsp;&nbsp;' + amount[i] + ' ' + this.state.currency + '</span>';
+        }
+        output = '<span class="fw-bold float-end" >'+ TotalValue + ' ' + this.state.currency + '</span>' + output;
+
+        return {__html: output};
+    }
     handleCalculateTotal() {
         let items = this.state.items;
         let subTotal = 0;
@@ -120,10 +152,10 @@ class InvoiceForm extends React.Component {
             subTotal: subTotal,
         }, () => {
             this.setState({
-                taxAmount: taxAmount,
+                taxAmount: this.diffToHtml(items, taxAmount, "tax", "taxAmount"),
             }, () => {
                 this.setState({
-                    discountAmount: discountAmount,
+                    discountAmount: this.diffToHtml(items, discountAmount, "discount", "discountAmount"),
                 }, () => {
                     this.setState({
                         total: total
@@ -281,11 +313,11 @@ class InvoiceForm extends React.Component {
                                 </div>
                                 <div className="d-flex flex-row align-items-start justify-content-between mt-2">
                                     <span className="fw-bold">Rabat:</span>
-                                    <span>{this.state.discountAmount || 0} {this.state.currency}</span>
+                                    <div dangerouslySetInnerHTML={this.state.discountAmount} />
                                 </div>
                                 <div className="d-flex flex-row align-items-start justify-content-between mt-2">
                                     <span className="fw-bold">Wartość&nbsp;podatku&nbsp;VAT:</span>
-                                    <span>{this.state.taxAmount || 0} {this.state.currency}</span>
+                                    <div dangerouslySetInnerHTML={this.state.taxAmount} />
                                 </div>
                                 <hr/>
                                 <div className="d-flex flex-row align-items-start justify-content-between" style={{fontSize: '1.125rem'}}>
