@@ -104,6 +104,7 @@ class ItemRow extends React.Component {
                         onItemizedItemEdit={this.props.onItemizedItemEdit} cellData={{
                             type: "text",
                             name: "PKWiU",
+                            placeholder: "PKWiU",
                             value: this.props.item.PKWiU,
                             id: this.props.item.id
                         }}
