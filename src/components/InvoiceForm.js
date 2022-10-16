@@ -22,6 +22,7 @@ class InvoiceForm extends React.Component {
         this.state = {
             isOpen: false,
             currency: 'zł',
+            paymentMethod: 'Przelew',
             currentDate: '',
             invoiceNumber: 1,
             dateOfIssue: format,
@@ -42,6 +43,14 @@ class InvoiceForm extends React.Component {
             billToEmail: 'TestToEmail@test',
             billToBillingAddress: 'Test to Billing Address',
             billToBank: 'Test to Bank',
+
+            billRecipientNip: 'Test Recipient nip',
+            billRecipient: 'Test Recipient Company',
+            billRecipientAddress: 'Test Recipient Address',
+            billRecipientPhone: 'Test Recipient Phone',
+            billRecipientEmail: 'TestRecipientEmail@test',
+            billRecipientBillingAddress: 'Test Recipient Billing Address',
+            billRecipientBank: 'Test Recipient Bank',
 
             notes: '',
             total: '0.00',
@@ -252,6 +261,9 @@ class InvoiceForm extends React.Component {
     onCurrencyChange = (selectedOption) => {
         this.setState(selectedOption);
     };
+    onPaymentMethodChange = (selectedOption) => {
+        this.setState(selectedOption);
+    }
     openModal = (event) => {
         event.preventDefault()
         this.handleCalculateTotal()
@@ -285,23 +297,33 @@ class InvoiceForm extends React.Component {
                         <Row className="mb-5">
                             <Col>
                                 <Form.Label className="fw-bold">Sprzedawca:</Form.Label>
-                                <Form.Control placeholder={"NIP"}                             value={this.state.billFromNip}            type="text"  name="billFromNip"            className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Nazwa firmy sprzedawcy"} rows={3} value={this.state.billFrom}               type="text"  name="billFrom"               className="my-2" autoComplete="Name"           onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Adres firmy sprzedawcy"}          value={this.state.billFromAddress}        type="text"  name="billFromAddress"        className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Nr telefonu sprzedawcy"}          value={this.state.billFromPhone}          type="text"  name="billFromPhone"          className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/*required="required"*//>
-                                <Form.Control placeholder={"Adres email sprzedawcy"}          value={this.state.billFromEmail}          type="email" name="billFromEmail"          className="my-2" autoComplete="Email"          onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billFromBillingAddress} type="text"  name="billFromBillingAddress" className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Bank"}                            value={this.state.billFromBank}           type="text"  name="billFromBank"           className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"NIP"}                             value={this.state.billFromNip}                 type="text"  name="billFromNip"                 className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Nazwa firmy sprzedawcy"} rows={3} value={this.state.billFrom}                    type="text"  name="billFrom"                    className="my-2" autoComplete="Name"           onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Adres firmy sprzedawcy"}          value={this.state.billFromAddress}             type="text"  name="billFromAddress"             className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Nr telefonu sprzedawcy"}          value={this.state.billFromPhone}               type="text"  name="billFromPhone"               className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/*required="required"*//>
+                                <Form.Control placeholder={"Adres email sprzedawcy"}          value={this.state.billFromEmail}               type="email" name="billFromEmail"               className="my-2" autoComplete="Email"          onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billFromBillingAddress}      type="text"  name="billFromBillingAddress"      className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Bank"}                            value={this.state.billFromBank}                type="text"  name="billFromBank"                className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
                             </Col>
                             <Col>
                                 <Form.Label className="fw-bold">Nabywca:</Form.Label>
-                                <Form.Control placeholder={"NIP"}                             value={this.state.billToNip}              type="text"  name="billToNip"              className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billTo}                 type="text"  name="billTo"                 className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} />
-                                <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billToAddress}          type="text"  name="billToAddress"          className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billToPhone}            type="text"  name="billToPhone"            className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billToEmail}            type="email" name="billToEmail"            className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} />
-                                <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billToBillingAddress}   type="text"  name="billToBillingAddress"   className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Bank"}                            value={this.state.billToBank}             type="text"  name="billToBank"             className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"NIP"}                             value={this.state.billToNip}                   type="text"  name="billToNip"                   className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billTo}                      type="text"  name="billTo"                      className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} />
+                                <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billToAddress}               type="text"  name="billToAddress"               className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billToPhone}                 type="text"  name="billToPhone"                 className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billToEmail}                 type="email" name="billToEmail"                 className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} />
+                                <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billToBillingAddress}        type="text"  name="billToBillingAddress"        className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Bank"}                            value={this.state.billToBank}                  type="text"  name="billToBank"                  className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
+                            </Col>
+                            <Col>
+                                <Form.Label className="fw-bold">Odbiorca:</Form.Label>
+                                <Form.Control placeholder={"NIP"}                             value={this.state.billRecipientNip}            type="text"  name="billRecipientNip"            className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billRecipient}               type="text"  name="billRecipient"               className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} />
+                                <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billRecipientAddress}        type="text"  name="billRecipientAddress"        className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billRecipientPhone}          type="text"  name="billRecipientPhone"          className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billRecipientEmail}          type="email" name="billRecipientEmail"          className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} />
+                                <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billRecipientBillingAddress} type="text"  name="billRecipientBillingAddress" className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
+                                <Form.Control placeholder={"Bank"}                            value={this.state.billRecipientBank}           type="text"  name="billRecipientBank"           className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
                             </Col>
                         </Row>
                         <InvoiceItem onItemizedItemEdit={this.onItemizedItemEdit.bind(this)} onRowAdd={this.handleAddEvent.bind(this)} onRowDel={this.handleRowDel.bind(this)} currency={this.state.currency} items={this.state.items}/>
@@ -346,6 +368,18 @@ class InvoiceForm extends React.Component {
                                 <option value="$">AUD (Australian Dollar)</option>
                                 <option value="$">SGD (Singapore Dollar)</option>
                                 <option value="¥">CNY (Chinese Renminbi)</option>
+                            </Form.Select>
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label className="fw-bold">Forma płatności:</Form.Label>
+                            <Form.Select onChange={event => this.onPaymentMethodChange({paymentMethod: event.target.value})} className="btn btn-light my-1" aria-label="Change Payment Method">
+                                <option value="Czek">Czek (0 dni; 100%)</option>
+                                <option value="Częściowy kredyt 14 dni">Częściowy kredyt 14 dni (14 dni; 50%)</option>
+                                <option value="Częściowy kredyt 7 dni">Częściowy kredyt 7 dni (7 dni; 50%)</option>
+                                <option value="Gotówka">Gotówka (0 dni; 100%)</option>
+                                <option value="Karta płatnicza">Karta płatnicza (0 dni; 100%)</option>
+                                <option value="Kredyt 14 dni">Kredyt 14 dni (14 dni; 0%)</option>
+                                <option value="Kredyt 7 dni">Kredyt 7 dni (7 dni; 0%)</option>s
                             </Form.Select>
                         </Form.Group>
                     </div>
