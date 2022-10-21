@@ -6,11 +6,13 @@ import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import Modal from 'react-bootstrap/Modal';
 import { BiPaperPlane, BiCloudDownload } from "react-icons/bi";
-import html2canvas from 'html2canvas';
-import JsPDF from 'jspdf'
+/*import html2canvas from 'html2canvas';
+import JsPDF from 'jspdf'*/
 
 function GenerateInvoice() {
-    html2canvas(document.querySelector("#invoiceCapture"),{scale: 2}).then((canvas) => {
+
+
+    /*html2canvas(document.querySelector("#invoiceCapture"),{scale: 2}).then((canvas) => {
         const imgData = canvas.toDataURL('image/png', 1.0);
         const pdf = new JsPDF({
             orientation: 'portrait',
@@ -25,7 +27,7 @@ function GenerateInvoice() {
         //show pdf in browser
         pdf.output('dataurlnewwindow', 'Faktura.pdf');
         //pdf.save('Faktura.pdf');
-    });
+    });*/
 }
 
 function description(description, hasDescription) {
@@ -73,7 +75,6 @@ class InvoiceModal extends React.Component {
                                         <div>{this.props.info.dateOfIssueF}</div>
                                         <div>{this.props.info.dueDateF}</div>
 
-
                                     </Col>
                                 </Row>
                                 <Col md={4}>
@@ -96,16 +97,18 @@ class InvoiceModal extends React.Component {
                                     <div>{this.props.info.billToBillingAddress||''}</div>
                                     <div>{this.props.info.billToBank||''}</div>
                                 </Col>
-                                <Col md={4}>
-                                    <div className="fw-bold">Odbiorca:</div>
-                                    <div>{this.props.info.billRecipientNip||''}</div>
-                                    <div>{this.props.info.billRecipient||''}</div>
-                                    <div>{this.props.info.billRecipientAddress||''}</div>
-                                    <div>{this.props.info.billRecipientPhone||''}</div>
-                                    <div>{this.props.info.billRecipientEmail||''}</div>
-                                    <div>{this.props.info.billRecipientBillingAddress||''}</div>
-                                    <div>{this.props.info.billRecipientBank||''}</div>
-                                </Col>
+                                {this.props.info.billRecipientPhone !== '' && this.props.info.billRecipientEmail !== '' && this.props.info.billRecipientAddress !== '' && this.props.info.billRecipientBillingAddress !== '' && this.props.info.billRecipientBank !== ''
+                                    ? <Col md={4}>
+                                        <div className="fw-bold">Odbiorca:</div>
+                                        <div>{this.props.info.billRecipientNip || ''}</div>
+                                        <div>{this.props.info.billRecipient || ''}</div>
+                                        <div>{this.props.info.billRecipientAddress || ''}</div>
+                                        <div>{this.props.info.billRecipientPhone || ''}</div>
+                                        <div>{this.props.info.billRecipientEmail || ''}</div>
+                                        <div>{this.props.info.billRecipientBillingAddress || ''}</div>
+                                        <div>{this.props.info.billRecipientBank || ''}</div>
+                                    </Col>: null
+                                } {/*No idea whats going in here lol*/}
                             </Row>
                             <Table className="mb-0">
                                 <thead>

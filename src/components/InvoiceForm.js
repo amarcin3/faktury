@@ -186,7 +186,7 @@ class InvoiceForm extends React.Component {
         total = Math.round(total * 100 + Number.EPSILON) / 100;
 
         this.setState({
-            subTotal: subTotal,
+            subTotal: this.addZeros(subTotal),
         }, () => {
             this.setState({
                 taxAmountInd: this.diffToHtml(items, this.addZeros(taxAmount), "tax", "taxAmount"),
@@ -195,7 +195,7 @@ class InvoiceForm extends React.Component {
                     discountAmountInd: this.diffToHtml(items, this.addZeros(discountAmount), "discount", "discountAmount"),
                 }, () => {
                     this.setState({
-                        total: total,
+                        total: this.addZeros(total),
                     }, () => {
                         this.setState({
                             taxAmount: taxAmount,
@@ -382,7 +382,7 @@ class InvoiceForm extends React.Component {
                             <Col lg={6}>
                                 <div className="d-flex flex-row align-items-start justify-content-between">
                                     <span className="fw-bold">Suma&nbsp;częściowa:</span>
-                                    <span>{this.state.subTotal} {this.state.currency}</span>
+                                    <span className="fw-bold">{this.state.subTotal} {this.state.currency}</span>
                                 </div>
                                 <div className="d-flex flex-row align-items-start justify-content-between mt-2">
                                     <span className="fw-bold">Rabat:</span>
