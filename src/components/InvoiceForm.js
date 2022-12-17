@@ -41,6 +41,16 @@ class InvoiceForm extends React.Component {
             dateOfIssueF: '',
             dueDateF: '',
 
+            taxAmount: 0,
+            discountAmount: 0,
+            taxAmountInd: {
+                "__html": "<span class=\"fw-bold float-end\" >0.00 zł</span>"
+            },
+            discountAmountInd: {
+                "__html": "<span class=\"fw-bold float-end\" >0.00 zł</span>"
+            },
+
+
             billFromNip: 'Test from nip',
             billFrom: 'Test from Company',
             billFromAddress: 'Test from address',
@@ -85,7 +95,7 @@ class InvoiceForm extends React.Component {
             quantity: 1,
             hasDescription: false
         }];
-
+        this.handleCalculateTotal();
         this.editField = this.editField.bind(this);
     }
 
