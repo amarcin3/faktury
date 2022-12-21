@@ -296,6 +296,7 @@ function GenerateDocument(bodyData){
 
     let lastY = Math.max(leftLastY, rightLastY1, rightLastY2);
 
+    doc.setLineWidth(0.1)
     doc.setDrawColor(0, 0, 0);
     doc.line(4, 34.5, 4, lastY);
     doc.line(103, 34.5, 103, lastY);
