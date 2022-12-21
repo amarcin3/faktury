@@ -56,6 +56,9 @@ function AddPlaceAndDateTable(doc, body){
             0: {cellWidth: 39},
             1: {cellWidth: 30},
             2: {cellWidth: 30},
+        },
+        alternateRowStyles: {
+          fillColor : [255, 255, 255]
         }
     })
 
@@ -82,8 +85,6 @@ function AddPersonInfoTable(doc, head, body, margin, startY=30) {
             cellPadding: 0.5,
             valign: 'top',
             fontSize: 9,
-            /*lineWidth: 0.1,
-            lineColor: [0, 0, 0],*/
         },
         columnStyles: {
             0: {cellWidth: 99, minCellHeight: 0},
@@ -91,6 +92,172 @@ function AddPersonInfoTable(doc, head, body, margin, startY=30) {
         alternateRowStyles: {
             fillColor : [255, 255, 255]
         },
+    })
+}
+function AddItemTable(doc, body, lastY){
+    doc.autoTable({
+        head: [{ Number: 'Lp.', Name: 'Nazwa', Description: 'Opis', Quantity: 'Ilość [szt]', PKWIU: 'PKWiU', Discount: 'Rabat', NetPrice: 'Cena jedn. netto', NetValue: 'Wartość netto', Tax: 'VAT', GrossValue: 'Wartość brutto'}],
+        body: body,
+        startY: lastY + 20,
+        margin: {top: 40, left: 4, right: 4, bottom: 40},
+        styles: {
+            font: 'roboto',
+            textColor: 'black',
+            cellPadding: 0.5,
+            overflowWrap: 'anywhere',
+            halign: 'center',
+            valign: 'middle',
+            fontSize: 9,
+            lineWidth: 0.1,
+            lineColor: [0, 0, 0],
+        },
+        headStyles: {
+            fillColor: [222, 222, 222],
+        },
+        columnStyles: {
+            Number: {cellWidth: 10, border: 1},
+            Name: {cellWidth: 44, halign: 'left'},
+            Description: {cellWidth: 30, halign: 'left'},
+            Quantity: {cellWidth: 10},
+            PKWIU: {cellWidth: 12},
+            Discount: {cellWidth: 11},
+            NetPrice: {cellWidth: 25, halign: 'right'},
+            NetValue: {cellWidth: 25, halign: 'right'},
+            Tax: {cellWidth: 10},
+            GrossValue: {cellWidth: 25, halign: 'right'},
+        },
+        alternateRowStyles: {
+            fillColor : [255, 255, 255]
+        },
+    })
+}
+function AddTaxTable(doc, body){
+    doc.autoTable({
+        head: [['Według stawki VAT', 'obrót netto', 'kwota VAT', 'obrót brutto']],
+        body: body,
+        margin: {left: 77, right: 15, top: 16, bottom: 15},
+        headStyles: {
+            fillColor: [222, 222, 222],
+            setFont: {"Roboto": "bold"},
+            halign: 'center',
+        },
+        styles: {
+            font: 'roboto',
+            textColor: 'black',
+            cellPadding: 0.5,
+            valign: 'middle',
+            fontSize: 9,
+            lineWidth: 0.1,
+            lineColor: [0, 0, 0],
+        },
+        columnStyles: {
+            0: {cellWidth: 39, halign: 'left'},
+            1: {cellWidth: 30, halign: 'right'},
+            2: {cellWidth: 30, halign: 'right'},
+            3: {cellWidth: 30, halign: 'right'},
+        },
+        alternateRowStyles: {
+            fillColor : [255, 255, 255]
+        }
+    })
+}
+function AddSummaryTable(doc, body, lastY){
+    doc.autoTable({
+        body: body,
+        startY: lastY + 20,
+        margin: {left: 4, right: 15, top: 16, bottom: 15},
+        styles: {
+            font: 'roboto',
+            textColor: 'black',
+            cellPadding: 0.5,
+            valign: 'middle',
+            fontSize: 9,
+            lineWidth: 0.1,
+            lineColor: [0, 0, 0],
+            cellWidth: 99
+        },
+        alternateRowStyles: {
+            fillColor : [255, 255, 255]
+        }
+    })
+}
+function AddFinalTable(doc, head, body, lastY){
+    doc.autoTable({
+        head: head,
+        body: body,
+        startY: lastY + 20,
+        margin: {left: 107, right: 15, top: 16, bottom: 15},
+        headStyles: {
+            fillColor: [222, 222, 222],
+            fontSize: 12,
+            halign: 'right',
+        },
+        styles: {
+            font: 'roboto',
+            textColor: 'black',
+            cellPadding: 0.5,
+            valign: 'middle',
+            fontSize: 9,
+        },
+        columnStyles: {
+            0: {cellWidth: 22},
+            1: {cellWidth: 77},
+        },
+        alternateRowStyles: {
+            fillColor : [255, 255, 255]
+        }
+    })
+}
+function AddSignTable(doc, head, margin, lastY){
+    doc.autoTable({
+        head: head,
+        body: [{}],
+        margin: margin,
+        startY: lastY + 10,
+        headStyles: {
+            fillColor: [222, 222, 222],
+            halign: 'center',
+        },
+        styles: {
+            font: 'roboto',
+            textColor: 'black',
+            cellPadding: 0.5,
+            valign: 'middle',
+            fontSize: 9,
+            lineWidth: 0.1,
+            lineColor: [0, 0, 0],
+        },
+        columnStyles: {
+            0: {cellWidth: 60, minCellHeight: 20},
+        },
+        alternateRowStyles: {
+            fillColor : [255, 255, 255]
+        }
+    })
+}
+function AddAdditionalInfoTable(doc, body, lastY){
+    doc.autoTable({
+        head: [[{content: 'Dodatkowe informacje:'}]],
+        body: body,
+        startY: lastY + 10,
+        margin: {left: 4, right: 15, top: 16, bottom: 15},
+        headStyles: {
+            fillColor: [222, 222, 222],
+            halign: 'left',
+        },
+        styles: {
+            font: 'roboto',
+            textColor: 'black',
+            cellPadding: 0.5,
+            overflowWrap: 'anywhere',
+            fontSize: 9,
+            lineWidth: 0.1,
+            lineColor: [0, 0, 0],
+        },
+        columnStyles: {
+            0: {cellWidth: 202},
+        }
+
     })
 }
 function GenerateDocument(bodyData){
@@ -115,12 +282,12 @@ function GenerateDocument(bodyData){
 
     doc.addImage(img, 'PNG',  doc.internal.pageSize.width/4-30, 4, 60, 21.327)
 
-    let leftLastY = 0;
-    let rightLastY1 = 0;
-    let rightLastY2 = 0;
+    let leftLastY;
+    let rightLastY1;
+    let rightLastY2;
 
     AddPlaceAndDateTable(doc, [{0: "Miejsce", 1: "Data", 2: "Termin"}]);
-    AddPersonInfoTable(doc, [[{content: 'Sprzedawca:'}]],[{0: "NIP: testNIP\nNazwa firmy: Test nazwy firmy\nAdres: Test adresu\nTelefon: Test telefonu\nEmail: Test emailu\nAdres rozliczeniowy: Test adresu rozliczeniowego ą, ć, ę, ł, ń, ó, ś, ź, ż, ł\nBank: Test banku"}], {top: 30, left: 4, right: 4, bottom: 4});
+    AddPersonInfoTable(doc, [[{content: 'Sprzedawca:'}]],[{0: "NIP: 6422741420\nKwiaciarnia Kwiaty u Kasi Katarzyna Abrahamczyk\nGłówna 81, 44-290 Jejkowice\ntel: 692188497\nKonto: 46105013441000009250490795\nBank: ING Bank Śląski"}], {top: 30, left: 4, right: 4, bottom: 4});
     leftLastY = doc.lastAutoTable.finalY;
     AddPersonInfoTable(doc,[[{content: 'Nabywca:'}]], [{0: "NIP: testNIP\nNazwa firmy: Test nazwy firmy\nAdres: Test adresu\nTelefon: Test telefonu\nEmail: Test emailu\nAdres do faktury: Test adresu do faktury\nBank: Test banku"}],{top: 30, left: 107, right: 4, bottom: 4});
     rightLastY1 = doc.lastAutoTable.finalY;
@@ -146,58 +313,40 @@ function GenerateDocument(bodyData){
     doc.line(206, rightLastY1+5, 206, lastY);
     doc.line(107, lastY, 206, lastY);
 
-
     doc.setFont("Roboto", "bold");
     doc.text('Faktura VAT nr xyz', doc.internal.pageSize.width/2, lastY + 15, {align: 'center'});
     doc.setFont("Roboto", "normal");
 
-    doc.autoTable({
-        head: [{ Number: 'LP', Name: 'Nazwa', Description: 'Opis', Quantity: 'Ilość [szt]', PKWIU: 'PKWiU', Discount: 'Rabat', NetPrice: 'Cena jednostkowa', NetValue: 'Wartość netto', Tax: 'VAT', GrossValue: 'Wartość brutto'}],
-        body: bodyData,
-        didDrawPage: function (data) {
+    AddItemTable(doc, bodyData, lastY);
+    AddTaxTable(doc, [{0:"Podatek VAT 8%", 1:"1234zł", 2:"123zł", 3:"12344zł"}]);
+    lastY = doc.lastAutoTable.finalY;
+    AddSummaryTable(doc, [{0:"Forma płatności: Gotówka"},{0: "Termin płatności:"},{0: "Zapłacono: 0,00zł"},{0: "Do zapłaty: 1234zł"}], lastY);
+    leftLastY = doc.lastAutoTable.finalY;
+    AddFinalTable(doc, [{content: "Do zapłaty:", fullprice: "12313"}], [[{content:"Słownie: asdas", colSpan: 2}]], lastY);
+    rightLastY1 = doc.lastAutoTable.finalY;
 
-            let str = 'Strona ' + doc.internal.getNumberOfPages();
+    doc.setDrawColor(222, 222, 222)
+    doc.setLineWidth(1)
+    doc.line(129, lastY+20.1, 129, lastY+25.8);
 
-            str = str + ' z ' + totalPagesExp;
-            doc.setFontSize(10)
+    doc.setLineWidth(0.1);
+    doc.setDrawColor(0, 0, 0);
+    doc.line(107, lastY+20, 206, lastY+20);
+    doc.line(107, lastY+20, 107, Math.max(leftLastY, rightLastY1));
+    doc.line(206, lastY+20, 206, Math.max(leftLastY, rightLastY1));
+    doc.line(107, Math.max(leftLastY, rightLastY1), 206, Math.max(leftLastY, rightLastY1));
 
-            let pageSize = doc.internal.pageSize;
-            let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
-            doc.text(str, data.settings.margin.left, pageHeight - 10);
-        },
-        startY: lastY + 20,
-        margin: {top: 40, left: 4, right: 4, bottom: 40},
-        styles: {
-            font: 'roboto',
-            textColor: 'black',
-            cellPadding: 0.5,
-            overflowWrap: 'anywhere',
-            halign: 'center',
-            valign: 'middle',
-            fontSize: 9,
-            lineWidth: 0.1,
-            lineColor: [0, 0, 0],
-        },
-        headStyles: {
-            fillColor: [255, 255, 255],
-        },
-        columnStyles: {
-            Number: {cellWidth: 10, border: 1},
-            Name: {cellWidth: 44, halign: 'left'},
-            Description: {cellWidth: 30, halign: 'left'},
-            Quantity: {cellWidth: 10},
-            PKWIU: {cellWidth: 12},
-            Discount: {cellWidth: 11},
-            NetPrice: {cellWidth: 25, halign: 'right'},
-            NetValue: {cellWidth: 25, halign: 'right'},
-            Tax: {cellWidth: 10},
-            GrossValue: {cellWidth: 25, halign: 'right'},
-        },
-        alternateRowStyles: {
-            fillColor : [255, 255, 255]
-        },
-    })
+    AddSignTable(doc, [{content: "Podpis wystawiającego"}], {top: 30, left: 22.5, right: 4, bottom: 4},Math.max(leftLastY, rightLastY1));
+    AddSignTable(doc, [{content: "Podpis odbiorcy"}], {top: 30, left: 125.5, right: 4, bottom: 4},Math.max(leftLastY, rightLastY1));
 
+    AddAdditionalInfoTable(doc, [{content: "Dodatkowe informacje"}], doc.lastAutoTable.finalY);
+
+    let str = 'Strona ' + doc.internal.getNumberOfPages();
+    str = str + ' z ' + totalPagesExp;
+    doc.setFontSize(10)
+    let pageSize = doc.internal.pageSize;
+    let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+    doc.text(str, 4, pageHeight - 10);
     doc.putTotalPages(totalPagesExp)
 
     return doc
