@@ -35,11 +35,12 @@ class InvoiceForm extends React.Component {
             currency: 'zł',
             paymentMethod: 'Przelew',
             currentDate: '',
-            invoiceNumber: 1,
+            invoiceNumber: '1',
             dateOfIssue: format,
             dueDate: format,
             dateOfIssueF: '',
             dueDateF: '',
+            placeOfIssue: "Jejkowice",
 
             taxAmount: 0,
             discountAmount: 0,
@@ -170,7 +171,7 @@ class InvoiceForm extends React.Component {
             if (percent[i] === 0) {
                 continue;
             }
-            output = output + '<br><span class="float-end text-nowrap"> (' + percent[i] + '%)&nbsp;&nbsp;&nbsp-&nbsp;&nbsp;&nbsp;' + this.addZeros(amount[i]) + ' ' + this.state.currency + '</span>';
+            output = output + '<br><span class="float-end text-nowrap"> (' + percent[i] + '%)&nbsp;&nbsp;&nbsp-&nbsp;&nbsp;&nbsp;' + this.addZeros(Math.round(amount[i]*100+Number.EPSILON)/100) + ' ' + this.state.currency + '</span>';
         }
         output = '<span class="fw-bold float-end" >'+ TotalValue + ' ' + this.state.currency + '</span>' + output;
 
@@ -340,18 +341,22 @@ class InvoiceForm extends React.Component {
                             <div className="d-flex flex-column">
                                 <div className="d-flex flex-column">
                                     <div className="d-flex flex-row align-items-center">
-                                        <span className="fw-bold d-block me-2">Data&nbsp;wystawienia:&nbsp;</span>
+                                        <span className="fw-bold d-block me-2">Data&nbsp;wystawienia:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                         <Form.Control type="date" value={this.state.dateOfIssue} name={"dateOfIssue"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px', marginBottom: '10px'}} required="required"/>
                                     </div>
                                 </div>
                                 <div className="d-flex flex-row align-items-center">
-                                    <span className="fw-bold d-block me-2">Termin&nbsp;płatności:&nbsp;&nbsp;</span>
-                                    <Form.Control type="date" value={this.state.dueDate} name={"dueDate"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px'}} required="required"/>
+                                    <span className="fw-bold d-block me-2">Termin&nbsp;płatności:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                    <Form.Control type="date" value={this.state.dueDate} name={"dueDate"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px', marginBottom: '10px'}} required="required"/>
+                                </div>
+                                <div className="d-flex flex-row align-items-center">
+                                    <span className="fw-bold d-block me-2">Miejsce&nbsp;wystawienia:&nbsp;</span>
+                                    <Form.Control type="text" value={this.state.placeOfIssue} name={"placeOfIssue"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px'}} required="required"/>
                                 </div>
                             </div>
                             <div className="d-flex flex-row align-items-center">
                                 <span className="fw-bold me-2">Numer&nbsp;faktury:&nbsp;</span>
-                                <Form.Control type="number" value={this.state.invoiceNumber} name={"invoiceNumber"} onChange={(event) => this.editField(event)} min="1" style={{maxWidth: '70px'}} required="required"/>
+                                <Form.Control type="text" value={this.state.invoiceNumber} name={"invoiceNumber"} onChange={(event) => this.editField(event)} min="1" style={{maxWidth: '70px'}} required="required"/>
                             </div>
                         </div>
                         <hr className="my-4"/>

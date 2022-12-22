@@ -7,9 +7,8 @@ import Table from 'react-bootstrap/Table';
 import Modal from 'react-bootstrap/Modal';
 import {BiDownload, BiWindowOpen} from "react-icons/bi";
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
-
+import {applyPlugin} from "jspdf-autotable";
+applyPlugin(jsPDF);
 
 function recipient(x) {
     if(x.billRecipientNip === "" && x.billRecipient === "" && x.billRecipientAddress === "" && x.billRecipientPhone === "" && x.billRecipientEmail === "" && x.billRecipientBillingAddress === "" && x.billRecipientBank === "") return null;
@@ -31,12 +30,228 @@ function tax(x) {
         return <tr className="text-end"><td></td><td className="fw-bold" style={{width: '100px'}}>Podatek: </td><td><div dangerouslySetInnerHTML={x.taxAmountInd} /></td></tr>;
     }
 }
+
+function addZerosModal(number) {
+    if(number%1 === 0) {
+        return number.toString() + '.00';
+    } else if(number*10%1 === 0) {
+        return number.toString() + '0';
+    } else {
+        return number.toString();
+    }
+}
+let units = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
+let tens = ["", "dziesięć", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
+let teens = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
+let hundreds = ["", "sto", "dwieście", "trzysta", "czterysta", "pięćset", "sześćset", "siedemset", "osiemset", "dziewięćset"];
+let big = ["x", "x", "x", "tysiąc", "tysiące", "tysięcy", "milion", "miliony", "milionów", "miliard", "miliardy", "miliardów", "bilion", "biliony", "bilionów"]
+
+let fulls = ["złoty", "złote", "złotych"];
+let pennies = ["grosz", "pennies", "groszy"];
+function TNumbersWords(number){
+    let je = number % 10;
+    let dz = Math.floor(number / 10) % 10;
+    let se = Math.floor(number / 100) % 10;
+    let words = [];
+    if (se > 0) words.push(hundreds[se]);
+    if (dz === 1) {
+        words.push(teens[je]);
+    } else {
+        if (dz > 0) words.push(tens[dz]);
+        if (je > 0) words.push(units[je]);
+    }
+    return words.join(" ");
+}
+function variety(number){
+    let je = number % 10;
+    let dz = Math.floor(number / 10) % 10;
+
+    if (number === 1) return 0;
+    if (dz === 1 && je > 1) return 2;
+    if (je >= 2 && je <= 4) return 1;
+    return 2;
+}
+function NWords(number){
+    let thirds = [];
+    if (number === 0) return "zero";
+    while (number > 0){
+        thirds.push(number % 1000);
+        number = Math.floor(number / 1000);
+    }
+    let words = [];
+    for (let i = 0; i < thirds.length; i++){
+        let n = thirds[i];
+        if (n > 0){
+            if (i > 0){
+                let p = variety(n);
+                let w = big[i * 3 + p];
+                words.push(TNumbersWords(n) + " " + w);
+            } else {
+                words.push(TNumbersWords(n));
+            }
+        }
+    }
+    words.reverse();
+    return words.join(" ");
+}
+function MoneyWords(number, cos){
+    return NWords(number) + " " + cos[variety(number)];
+}
+function InWords(number, fmt=0){
+    let Full = Math.floor(number);
+    let Pennies = Math.floor(number * 100 + 0.5) % 100;
+    let PenniesText;
+    if (fmt !== 0) {
+        PenniesText = MoneyWords(Pennies, pennies);
+    } else {
+        PenniesText = Pennies + "/100";
+    }
+    return MoneyWords(Full, fulls) + " " + PenniesText;
+}
+//Data preparation
+function PreparePlaceAndDateBody(props){
+    return {0: props.info.placeOfIssue, 1: props.info.dateOfIssueF, 2: props.info.dueDateF};
+}
+function PreparePersonInfoBody(props, who){
+    let data = "";
+    let info = [];
+    if(who === "from"){
+        info.push(props.info.billFromNip);
+        info.push(props.info.billFrom);
+        info.push(props.info.billFromAddress);
+        info.push(props.info.billFromPhone);
+        info.push(props.info.billFromEmail);
+        info.push(props.info.billFromBillingAddress);
+        info.push(props.info.billFromBank);
+    }
+    else if(who === "to"){
+        info.push(props.info.billToNip);
+        info.push(props.info.billTo);
+        info.push(props.info.billToAddress);
+        info.push(props.info.billToPhone);
+        info.push(props.info.billToEmail);
+        info.push(props.info.billToBillingAddress);
+        info.push(props.info.billToBank);
+    }
+    else if (who === "recipient"){
+        info.push(props.info.billRecipientNip);
+        info.push(props.info.billRecipient);
+        info.push(props.info.billRecipientAddress);
+        info.push(props.info.billRecipientPhone);
+        info.push(props.info.billRecipientEmail);
+        info.push(props.info.billRecipientBillingAddress);
+        info.push(props.info.billRecipientBank);
+    }
+
+    for(let i = 0; i < info.length; i++){
+        for(let j = 0; j < info[i].length; j++){
+            if(info[i][j] === " "){
+                info[i] = info[i].slice(1);
+                j--;
+            } else{
+                break;
+            }
+        }
+        if(info[i] !== ""){
+            if (data !== "") data += "\n" + info[i];
+            else data += info[i];
+        }
+    }
+    return {0: data};
+}
+function Item(Number, Name, Description, Quantity, PKWIU, Discount, NetPrice, NetValue, Tax, GrossValue){
+    this.Number = Number;
+    this.Name = Name;
+    this.Description = Description;
+    this.Quantity = Quantity;
+    this.PKWIU = PKWIU;
+    this.Discount = Discount;
+    this.NetPrice = NetPrice;
+    this.NetValue = NetValue;
+    this.Tax = Tax;
+    this.GrossValue = GrossValue;
+
+}
+function PrepareItemBody(props){
+    let data = [];
+    props.items.map((item) => {
+        return data.push(new Item(item.number, item.name, item.description, item.quantity, item.PKWiU, item.discount + "%", addZerosModal(item.netPrice) + props.currency, addZerosModal(item.netValue) + props.currency, item.tax + "%", addZerosModal(item.grossValue) + props.currency))
+    })
+    return data;
+}
+function PrepareTaxTableBody(props){
+    let percent = [];
+    let amount = [];
+    let netValue = [];
+    let grossValue = [];
+
+    for (let i = 0; i < props.items.length; i++) {
+        if (percent.includes(props.items[i].tax)) {
+            let index = percent.indexOf(props.items[i].tax);
+            amount[index] = props.items[i].taxAmount + amount[index];
+            netValue[index] = props.items[i].netValue + netValue[index];
+            grossValue[index] = props.items[i].grossValue + grossValue[index];
+        } else {
+            percent.push(props.items[i].tax);
+            amount.push(props.items[i].taxAmount);
+            netValue.push(props.items[i].netValue);
+            grossValue.push(props.items[i].grossValue);
+        }
+    }
+    let list = [];
+    for (let j = 0; j < percent.length; j++) {
+        list.push({0: "Podatek VAT " + percent[j] + "%", 1: addZerosModal(netValue[j]) + "zł", 2: addZerosModal(amount[j]) + "zł", 3: addZerosModal(grossValue[j]) + "zł"});
+    }
+    list.sort(function(a, b) {
+        return ((b.percent < a.percent) ? -1 : ((b.percent === a.percent) ? 0 : 1));
+    });
+
+    let sumAmount = 0;
+    amount.forEach(item=>{
+        sumAmount+=item;
+    });
+    let sumNetValue = 0;
+    netValue.forEach(item=>{
+        sumNetValue+=item;
+    });
+    let sumGrossValue = 0;
+    grossValue.forEach(item=>{
+        sumGrossValue+=item;
+    });
+
+    sumAmount = Math.round(sumAmount * 100+ Number.EPSILON) / 100;
+    sumNetValue = Math.round(sumNetValue * 100+ Number.EPSILON) / 100;
+    sumGrossValue = Math.round(sumGrossValue * 100+ Number.EPSILON) / 100;
+
+    list.push({0: "Razem", 1: addZerosModal(sumNetValue) + "zł", 2: addZerosModal(sumAmount) + "zł", 3: addZerosModal(sumGrossValue) + "zł"});
+    return list;
+}
+function PrepareSummaryBody(props){
+    /*paymentMethod, dueDate, Already paid, to pay*/
+    let data = [];
+    data.push({0: "Sposób płatności: " + props.info.paymentMethod});
+    data.push({0: "Termin płatności: " + props.info.dueDateF});
+    data.push({0: "Zapłacono: 0.00zł"});
+    data.push({0: "Do zapłaty: " + props.info.total + props.currency});
+    return data;
+}
+function PrepareFinalTableHead(props){
+    return {0: "Do zapłaty:", 1: props.info.total + props.currency};
+}
+function PrepareFinalTableContent(props){
+    console.log(parseFloat(props.info.total));
+    console.log(props.info.total);
+    return {content: "Słownie: " + InWords(parseFloat(props.info.total)), colSpan: 2};
+}
 //PDF making
 function AddPlaceAndDateTable(doc, body){
+    /*console.error = () => {};*/
     doc.autoTable({
         head: [['Miejsce wystawienia: ', 'Data wystawienia: ', 'Termin płatności: ']],
         body: body,
-        margin: {left: 107, right: 15, top: 16, bottom: 15},
+        pageBreak: 'avoid',
+        startY: 17,
+        margin: {left: 106},
         headStyles: {
             fillColor: [222, 222, 222],
             setFont: {"Roboto": "bold"},
@@ -53,7 +268,7 @@ function AddPlaceAndDateTable(doc, body){
 
         },
         columnStyles: {
-            0: {cellWidth: 39},
+            0: {cellWidth: 38},
             1: {cellWidth: 30},
             2: {cellWidth: 30},
         },
@@ -68,6 +283,7 @@ function AddPersonInfoTable(doc, head, body, margin, startY=30) {
     doc.autoTable({
         head: head,
         body: body,
+        pageBreak: 'avoid',
         margin: margin,
         startY: startY,
         headStyles: {
@@ -87,7 +303,7 @@ function AddPersonInfoTable(doc, head, body, margin, startY=30) {
             fontSize: 9,
         },
         columnStyles: {
-            0: {cellWidth: 99, minCellHeight: 0},
+            0: {cellWidth: 98, minCellHeight: 0},
         },
         alternateRowStyles: {
             fillColor : [255, 255, 255]
@@ -98,8 +314,18 @@ function AddItemTable(doc, body, lastY){
     doc.autoTable({
         head: [{ Number: 'Lp.', Name: 'Nazwa', Description: 'Opis', Quantity: 'Ilość [szt]', PKWIU: 'PKWiU', Discount: 'Rabat', NetPrice: 'Cena jedn. netto', NetValue: 'Wartość netto', Tax: 'VAT', GrossValue: 'Wartość brutto'}],
         body: body,
-        startY: lastY + 20,
-        margin: {top: 40, left: 4, right: 4, bottom: 40},
+        didDrawPage: function () {
+            let totalPagesExp = '{total_pages_count_string}';
+            let str = 'Strona ' + doc.internal.getNumberOfPages();
+            str = str + ' z ' + totalPagesExp;
+            doc.setFontSize(10)
+            let pageSize = doc.internal.pageSize;
+            let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+            doc.text(str, 6, pageHeight - 6);
+            doc.putTotalPages(totalPagesExp)
+        },
+        startY: lastY,
+        margin: {left: 6},
         styles: {
             font: 'roboto',
             textColor: 'black',
@@ -115,7 +341,7 @@ function AddItemTable(doc, body, lastY){
             fillColor: [222, 222, 222],
         },
         columnStyles: {
-            Number: {cellWidth: 10, border: 1},
+            Number: {cellWidth: 6, border: 1},
             Name: {cellWidth: 44, halign: 'left'},
             Description: {cellWidth: 30, halign: 'left'},
             Quantity: {cellWidth: 10},
@@ -131,11 +357,13 @@ function AddItemTable(doc, body, lastY){
         },
     })
 }
-function AddTaxTable(doc, body){
+function AddTaxTable(doc, body, lastY){
     doc.autoTable({
         head: [['Według stawki VAT', 'obrót netto', 'kwota VAT', 'obrót brutto']],
         body: body,
-        margin: {left: 77, right: 15, top: 16, bottom: 15},
+        pageBreak: 'avoid',
+        margin: {left: 84},
+        startY: lastY,
         headStyles: {
             fillColor: [222, 222, 222],
             setFont: {"Roboto": "bold"},
@@ -151,7 +379,7 @@ function AddTaxTable(doc, body){
             lineColor: [0, 0, 0],
         },
         columnStyles: {
-            0: {cellWidth: 39, halign: 'left'},
+            0: {cellWidth: 30, halign: 'left'},
             1: {cellWidth: 30, halign: 'right'},
             2: {cellWidth: 30, halign: 'right'},
             3: {cellWidth: 30, halign: 'right'},
@@ -164,8 +392,9 @@ function AddTaxTable(doc, body){
 function AddSummaryTable(doc, body, lastY){
     doc.autoTable({
         body: body,
-        startY: lastY + 20,
-        margin: {left: 4, right: 15, top: 16, bottom: 15},
+        startY: lastY,
+        pageBreak: 'avoid',
+        margin: {left: 6, top: 6},
         styles: {
             font: 'roboto',
             textColor: 'black',
@@ -174,7 +403,7 @@ function AddSummaryTable(doc, body, lastY){
             fontSize: 9,
             lineWidth: 0.1,
             lineColor: [0, 0, 0],
-            cellWidth: 99
+            cellWidth: 98
         },
         alternateRowStyles: {
             fillColor : [255, 255, 255]
@@ -185,8 +414,9 @@ function AddFinalTable(doc, head, body, lastY){
     doc.autoTable({
         head: head,
         body: body,
-        startY: lastY + 20,
-        margin: {left: 107, right: 15, top: 16, bottom: 15},
+        pageBreak: 'avoid',
+        startY: lastY,
+        margin: {left: 106, top: 6},
         headStyles: {
             fillColor: [222, 222, 222],
             fontSize: 12,
@@ -201,7 +431,7 @@ function AddFinalTable(doc, head, body, lastY){
         },
         columnStyles: {
             0: {cellWidth: 22},
-            1: {cellWidth: 77},
+            1: {cellWidth: 76},
         },
         alternateRowStyles: {
             fillColor : [255, 255, 255]
@@ -212,8 +442,9 @@ function AddSignTable(doc, head, margin, lastY){
     doc.autoTable({
         head: head,
         body: [{}],
+        pageBreak: 'avoid',
         margin: margin,
-        startY: lastY + 10,
+        startY: lastY,
         headStyles: {
             fillColor: [222, 222, 222],
             halign: 'center',
@@ -239,8 +470,9 @@ function AddAdditionalInfoTable(doc, body, lastY){
     doc.autoTable({
         head: [[{content: 'Dodatkowe informacje:'}]],
         body: body,
+        pageBreak: 'avoid',
         startY: lastY + 10,
-        margin: {left: 4, right: 15, top: 16, bottom: 15},
+        margin: {left: 6},
         headStyles: {
             fillColor: [222, 222, 222],
             halign: 'left',
@@ -255,12 +487,12 @@ function AddAdditionalInfoTable(doc, body, lastY){
             lineColor: [0, 0, 0],
         },
         columnStyles: {
-            0: {cellWidth: 202},
+            0: {cellWidth: 198},
         }
 
     })
 }
-function GenerateDocument(bodyData){
+function GenerateDocument(PlaceAndDateTableBody, PersonInfoTableBody1, PersonInfoTableBody2, PersonInfoTableBody3, InvoiceNumber, ItemTableBody, TaxTableBody, SummaryTableBody, FinalTableHead, FinalTableContent, AdditionalInfoTableBody) {
     let doc = new jsPDF();
     let totalPagesExp = '{total_pages_count_string}';
     doc.setFontSize(20);
@@ -277,103 +509,114 @@ function GenerateDocument(bodyData){
     doc.addFont("Roboto-Regular-normal.ttf", "roboto", "normal");
     doc.addFont("Roboto-Bold-bold.ttf", "roboto", "bold");
 
+
     doc.setFont("Roboto", "normal");
+    doc.addImage(img, 'PNG', doc.internal.pageSize.width / 4 - 30, 6, 60, 21.327)
 
-
-    doc.addImage(img, 'PNG',  doc.internal.pageSize.width/4-30, 4, 60, 21.327)
-
+    let PlaceAndDateLastY
     let leftLastY;
     let rightLastY1;
     let rightLastY2;
 
-    AddPlaceAndDateTable(doc, [{0: "Miejsce", 1: "Data", 2: "Termin"}]);
-    AddPersonInfoTable(doc, [[{content: 'Sprzedawca:'}]],[{0: "NIP: 6422741420\nKwiaciarnia Kwiaty u Kasi Katarzyna Abrahamczyk\nGłówna 81, 44-290 Jejkowice\ntel: 692188497\nKonto: 46105013441000009250490795\nBank: ING Bank Śląski"}], {top: 30, left: 4, right: 4, bottom: 4});
+    AddPlaceAndDateTable(doc, [PlaceAndDateTableBody]);
+    PlaceAndDateLastY = doc.lastAutoTable.finalY;
+    AddPersonInfoTable(doc, [[{content: 'Sprzedawca:'}]], [PersonInfoTableBody1], {
+        left: 6,
+        top: 6
+    }, PlaceAndDateLastY + 4);
     leftLastY = doc.lastAutoTable.finalY;
-    AddPersonInfoTable(doc,[[{content: 'Nabywca:'}]], [{0: "NIP: testNIP\nNazwa firmy: Test nazwy firmy\nAdres: Test adresu\nTelefon: Test telefonu\nEmail: Test emailu\nAdres do faktury: Test adresu do faktury\nBank: Test banku"}],{top: 30, left: 107, right: 4, bottom: 4});
+    AddPersonInfoTable(doc, [[{content: 'Nabywca:'}]], [PersonInfoTableBody2], {
+        left: 106,
+        top: 6
+    }, PlaceAndDateLastY + 4);
     rightLastY1 = doc.lastAutoTable.finalY;
-    AddPersonInfoTable(doc, [[{content: 'Odbiorca:'}]], [{0: "NIP: testNIP\nNazwa firmy: Test nazwy firmy\nAdres: Test adresu\nTelefon: Test telefonu\nEmail: Test emailu\nAdres do faktury: Test adresu do faktury\nBank: Test banku"}], {top: 30, left: 107, right: 4, bottom: 4}, doc.lastAutoTable.finalY + 5);
+    AddPersonInfoTable(doc, [[{content: 'Odbiorca:'}]], [PersonInfoTableBody3], {
+        left: 106,
+        top: 6
+    }, doc.lastAutoTable.finalY + 4);
     rightLastY2 = doc.lastAutoTable.finalY;
 
     let lastY = Math.max(leftLastY, rightLastY1, rightLastY2);
 
     doc.setLineWidth(0.1)
     doc.setDrawColor(0, 0, 0);
-    doc.line(4, 34.5, 4, lastY);
-    doc.line(103, 34.5, 103, lastY);
-    doc.line(4, lastY, 103, lastY);
+    doc.line(6, PlaceAndDateLastY + 8.5, 6, lastY);
+    doc.line(104, PlaceAndDateLastY + 8.5, 104, lastY);
+    doc.line(6, lastY, 104, lastY);
     if (rightLastY1 < rightLastY2) {
-        doc.line(107, 34.5, 107, rightLastY1);
-        doc.line(206, 34.5, 206, rightLastY1);
-        doc.line(107, rightLastY1, 206, rightLastY1);
+        doc.line(106, PlaceAndDateLastY + 8.5, 106, rightLastY1);
+        doc.line(204, PlaceAndDateLastY + 8.5, 204, rightLastY1);
+        doc.line(106, rightLastY1, 204, rightLastY1);
     } else {
-        doc.line(107, 34.5, 107, lastY);
-        doc.line(206, 34.5, 206, lastY);
-        doc.line(107, lastY, 206, lastY);
+        doc.line(106, PlaceAndDateLastY + 8.5, 106, lastY);
+        doc.line(204, PlaceAndDateLastY + 8.5, 204, lastY);
+        doc.line(106, lastY, 204, lastY);
     }
-    doc.line(107, rightLastY1+5, 107, lastY);
-    doc.line(206, rightLastY1+5, 206, lastY);
-    doc.line(107, lastY, 206, lastY);
+    doc.line(106, rightLastY1 + 8.5, 106, lastY);
+    doc.line(204, rightLastY1 + 8.5, 204, lastY);
+    doc.line(106, lastY, 204, lastY);
 
     doc.setFont("Roboto", "bold");
-    doc.text('Faktura VAT nr xyz', doc.internal.pageSize.width/2, lastY + 15, {align: 'center'});
+    doc.text('Faktura VAT nr ' + InvoiceNumber, doc.internal.pageSize.width / 2, lastY + 10, {align: 'center'});
     doc.setFont("Roboto", "normal");
 
-    AddItemTable(doc, bodyData, lastY);
-    AddTaxTable(doc, [{0:"Podatek VAT 8%", 1:"1234zł", 2:"123zł", 3:"12344zł"}]);
+    AddItemTable(doc, ItemTableBody, lastY + 20);
+    AddTaxTable(doc, TaxTableBody);
     lastY = doc.lastAutoTable.finalY;
-    AddSummaryTable(doc, [{0:"Forma płatności: Gotówka"},{0: "Termin płatności:"},{0: "Zapłacono: 0,00zł"},{0: "Do zapłaty: 1234zł"}], lastY);
+    AddSummaryTable(doc, SummaryTableBody, lastY + 4);
     leftLastY = doc.lastAutoTable.finalY;
-    AddFinalTable(doc, [{content: "Do zapłaty:", fullprice: "12313"}], [[{content:"Słownie: asdas", colSpan: 2}]], lastY);
+    let NewPage = false;
+    if (lastY + 4 > doc.lastAutoTable.finalY) {
+        NewPage = true;
+        doc.setPage(doc.internal.getNumberOfPages() - 1);
+    }
+    AddFinalTable(doc, [FinalTableHead], [[FinalTableContent]], lastY + 4);
     rightLastY1 = doc.lastAutoTable.finalY;
 
-    doc.setDrawColor(222, 222, 222)
-    doc.setLineWidth(1)
-    doc.line(129, lastY+20.1, 129, lastY+25.8);
+    let lastY2 = Math.max(leftLastY, rightLastY1);
 
-    doc.setLineWidth(0.1);
-    doc.setDrawColor(0, 0, 0);
-    doc.line(107, lastY+20, 206, lastY+20);
-    doc.line(107, lastY+20, 107, Math.max(leftLastY, rightLastY1));
-    doc.line(206, lastY+20, 206, Math.max(leftLastY, rightLastY1));
-    doc.line(107, Math.max(leftLastY, rightLastY1), 206, Math.max(leftLastY, rightLastY1));
+    if (NewPage) {
+        doc.setDrawColor(222, 222, 222)
+        doc.setLineWidth(1)
+        doc.line(128, 6, 128, 6 + 5.8);
+        doc.setLineWidth(0.1);
+        doc.setDrawColor(0, 0, 0);
+        doc.line(106, 6, 204, 6);
+        doc.line(106, 6, 106, lastY2);
+        doc.line(204, 6, 204, lastY2);
+        doc.line(106, Math.max(leftLastY, rightLastY1), 204, lastY2);
+    } else {
+        doc.setDrawColor(222, 222, 222)
+        doc.setLineWidth(1)
+        doc.line(128, lastY + 4.1, 128, lastY + 9.8);
+        doc.setLineWidth(0.1);
+        doc.setDrawColor(0, 0, 0);
+        doc.line(106, lastY+4, 204, lastY+4);
+        doc.line(106, lastY+4, 106, lastY2);
+        doc.line(204, lastY+4, 204, lastY2);
+        doc.line(106, Math.max(leftLastY, rightLastY1), 204, lastY2);
+    }
 
-    AddSignTable(doc, [{content: "Podpis wystawiającego"}], {top: 30, left: 22.5, right: 4, bottom: 4},Math.max(leftLastY, rightLastY1));
-    AddSignTable(doc, [{content: "Podpis odbiorcy"}], {top: 30, left: 125.5, right: 4, bottom: 4},Math.max(leftLastY, rightLastY1));
+    AddSignTable(doc, [{content: "Podpis wystawiającego"}], {left: 25}, lastY2+4);
+    if(lastY2+4 > doc.lastAutoTable.finalY) {
+        doc.setPage(doc.internal.getNumberOfPages()-1);
+    }
+    AddSignTable(doc, [{content: "Podpis odbiorcy"}], {left: 125}, lastY2+4);
 
-    AddAdditionalInfoTable(doc, [{content: "Dodatkowe informacje"}], doc.lastAutoTable.finalY);
+    AddAdditionalInfoTable(doc, AdditionalInfoTableBody, doc.lastAutoTable.finalY);
 
     let str = 'Strona ' + doc.internal.getNumberOfPages();
     str = str + ' z ' + totalPagesExp;
     doc.setFontSize(10)
     let pageSize = doc.internal.pageSize;
     let pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
-    doc.text(str, 4, pageHeight - 10);
+    doc.text(str, 6, pageHeight - 6);
     doc.putTotalPages(totalPagesExp)
 
     return doc
 }
-function Item(Number, Name, Description, Quantity, PKWIU, Discount, NetPrice, NetValue, Tax, GrossValue){
-    this.Number = Number;
-    this.Name = Name;
-    this.Description = Description;
-    this.Quantity = Quantity;
-    this.PKWIU = PKWIU;
-    this.Discount = Discount;
-    this.NetPrice = NetPrice;
-    this.NetValue = NetValue;
-    this.Tax = Tax;
-    this.GrossValue = GrossValue;
-
-}
-function PrepareData(props){
-    let data = [];
-    props.items.map((item) => {
-        return data.push(new Item(item.number, item.name, item.description, item.quantity, item.PKWiU, item.discount + "%", item.netPrice + props.currency, item.netValue + props.currency, item.tax + "%", item.grossValue + props.currency))
-    })
-    return data;
-}
 function DownloadInvoice(props){
-    let doc = GenerateDocument(PrepareData(props));
+    let doc = GenerateDocument(PreparePlaceAndDateBody(props),PreparePersonInfoBody(props, "from"), PreparePersonInfoBody(props, "to"), PreparePersonInfoBody(props, "recipient"),props.info.invoiceNumber, PrepareItemBody(props), PrepareTaxTableBody(props), PrepareSummaryBody(props), PrepareFinalTableHead(props), PrepareFinalTableContent(props), [{0: props.info.notes}]);
     doc.setProperties({
         title: 'Example: ',
         subject: 'invoice'
@@ -381,7 +624,7 @@ function DownloadInvoice(props){
     doc.save('table.pdf');
 }
 function DisplayInvoice(props){
-    let doc = GenerateDocument(PrepareData(props));
+    let doc = GenerateDocument(PreparePlaceAndDateBody(props),PreparePersonInfoBody(props, "from"), PreparePersonInfoBody(props, "to"), PreparePersonInfoBody(props, "recipient"),props.info.invoiceNumber, PrepareItemBody(props), PrepareTaxTableBody(props), PrepareSummaryBody(props), PrepareFinalTableHead(props), PrepareFinalTableContent(props), [{0: props.info.notes}]);
     doc.setProperties({
         title: 'Example: ',
         subject: 'invoice'
@@ -431,6 +674,10 @@ class InvoiceModal extends React.Component {
                         <div className="p-4">
                             <Row className="mb-4">
                                 <Row className="mb-4">
+                                    <Col md={4}>
+                                        <div className="fw-bold mt-2">Miejsce wystawienia:</div>
+                                        <div>{this.props.info.placeOfIssue}</div>
+                                    </Col>
                                     <Col md={4}>
                                         <div className="fw-bold mt-2">Data wystawienia:</div>
                                         <div>{this.props.info.dateOfIssueF}</div>
