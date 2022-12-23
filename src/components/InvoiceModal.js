@@ -10,6 +10,7 @@ import jsPDF from 'jspdf';
 import {applyPlugin} from "jspdf-autotable";
 import data from './resources.json';
 applyPlugin(jsPDF);
+
 function recipient(x) {
     if(x.billRecipientNip === "" && x.billRecipient === "" && x.billRecipientAddress === "" && x.billRecipientPhone === "" && x.billRecipientEmail === "" && x.billRecipientBillingAddress === "" && x.billRecipientBank === "") return null;
     else{
@@ -30,7 +31,6 @@ function tax(x) {
         return <tr className="text-end"><td></td><td className="fw-bold" style={{width: '100px'}}>Podatek: </td><td><div dangerouslySetInnerHTML={x.taxAmountInd} /></td></tr>;
     }
 }
-
 function addZerosModal(number) {
     if(number%1 === 0) {
         return number.toString() + '.00';
@@ -40,6 +40,8 @@ function addZerosModal(number) {
         return number.toString();
     }
 }
+
+//Number to words
 let units = ["", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"];
 let tens = ["", "dziesięć", "dwadzieścia", "trzydzieści", "czterdzieści", "pięćdziesiąt", "sześćdziesiąt", "siedemdziesiąt", "osiemdziesiąt", "dziewięćdziesiąt"];
 let teens = ["dziesięć", "jedenaście", "dwanaście", "trzynaście", "czternaście", "piętnaście", "szesnaście", "siedemnaście", "osiemnaście", "dziewiętnaście"];
@@ -48,6 +50,7 @@ let big = ["x", "x", "x", "tysiąc", "tysiące", "tysięcy", "milion", "miliony"
 
 let fulls = ["złoty", "złote", "złotych"];
 let pennies = ["grosz", "pennies", "groszy"];
+
 function TNumbersWords(number){
     let je = number % 10;
     let dz = Math.floor(number / 10) % 10;
@@ -108,6 +111,7 @@ function InWords(number, fmt=0){
     }
     return MoneyWords(Full, fulls) + " " + PenniesText;
 }
+
 //Data preparation
 function PreparePlaceAndDateBody(props){
     return {0: props.info.placeOfIssue, 1: props.info.dateOfIssueF, 2: props.info.dueDateF};
@@ -239,13 +243,22 @@ function PrepareFinalTableHead(props){
     return {0: "Do zapłaty:", 1: props.info.total + props.currency};
 }
 function PrepareFinalTableContent(props){
-    console.log(parseFloat(props.info.total));
-    console.log(props.info.total);
     return {content: "Słownie: " + InWords(parseFloat(props.info.total)), colSpan: 2};
+}
+function PrepareAdditionalInfoBody(props){
+    for(let j = 0; j < props.info.notes.length; j++) {
+        if (props.info.notes[j] === " ") {
+            props.info.notes = props.info.notes.slice(1);
+            j--;
+        } else {
+            break;
+        }
+    }
+        return [{0: props.info.notes}];
 }
 //PDF making
 function AddPlaceAndDateTable(doc, body){
-    /*console.error = () => {};*/
+    console.error = () => {};
     doc.autoTable({
         head: [['Miejsce wystawienia: ', 'Data wystawienia: ', 'Termin płatności: ']],
         body: body,
@@ -506,31 +519,22 @@ function GenerateDocument(PlaceAndDateTableBody, PersonInfoTableBody1, PersonInf
     doc.setFont("Roboto", "normal");
     doc.addImage(data.logo, 'PNG', doc.internal.pageSize.width / 4 - 30, 6, 60, 21.327)
 
-    let PlaceAndDateLastY
-    let leftLastY;
-    let rightLastY1;
-    let rightLastY2;
-
+    let PlaceAndDateLastY, leftLastY, rightLastY1, rightLastY2 = 0;
+    
     AddPlaceAndDateTable(doc, [PlaceAndDateTableBody]);
     PlaceAndDateLastY = doc.lastAutoTable.finalY;
-    AddPersonInfoTable(doc, [[{content: 'Sprzedawca:'}]], [PersonInfoTableBody1], {
-        left: 6,
-        top: 6
-    }, PlaceAndDateLastY + 4);
+    AddPersonInfoTable(doc, [[{content: 'Sprzedawca:'}]], [PersonInfoTableBody1], {left: 6, top: 6}, PlaceAndDateLastY + 4);
     leftLastY = doc.lastAutoTable.finalY;
-    AddPersonInfoTable(doc, [[{content: 'Nabywca:'}]], [PersonInfoTableBody2], {
-        left: 106,
-        top: 6
-    }, PlaceAndDateLastY + 4);
+    AddPersonInfoTable(doc, [[{content: 'Nabywca:'}]], [PersonInfoTableBody2], {left: 106, top: 6}, PlaceAndDateLastY + 4);
     rightLastY1 = doc.lastAutoTable.finalY;
-    AddPersonInfoTable(doc, [[{content: 'Odbiorca:'}]], [PersonInfoTableBody3], {
-        left: 106,
-        top: 6
-    }, doc.lastAutoTable.finalY + 4);
-    rightLastY2 = doc.lastAutoTable.finalY;
+
+    if (PersonInfoTableBody3["0"] !== "") {
+        AddPersonInfoTable(doc, [[{content: 'Odbiorca:'}]], [PersonInfoTableBody3], {left: 106, top: 6}, doc.lastAutoTable.finalY + 4);
+        rightLastY2 = doc.lastAutoTable.finalY;
+    }
+
 
     let lastY = Math.max(leftLastY, rightLastY1, rightLastY2);
-
     doc.setLineWidth(0.1)
     doc.setDrawColor(0, 0, 0);
     doc.line(6, PlaceAndDateLastY + 8.5, 6, lastY);
@@ -545,9 +549,11 @@ function GenerateDocument(PlaceAndDateTableBody, PersonInfoTableBody1, PersonInf
         doc.line(204, PlaceAndDateLastY + 8.5, 204, lastY);
         doc.line(106, lastY, 204, lastY);
     }
-    doc.line(106, rightLastY1 + 8.5, 106, lastY);
-    doc.line(204, rightLastY1 + 8.5, 204, lastY);
-    doc.line(106, lastY, 204, lastY);
+    if (PersonInfoTableBody3["0"] !== "") {
+        doc.line(106, rightLastY1 + 8.5, 106, lastY);
+        doc.line(204, rightLastY1 + 8.5, 204, lastY);
+        doc.line(106, lastY, 204, lastY);
+    }
 
     doc.setFont("Roboto", "bold");
     doc.text('Faktura VAT nr ' + InvoiceNumber, doc.internal.pageSize.width / 2, lastY + 10, {align: 'center'});
@@ -596,7 +602,9 @@ function GenerateDocument(PlaceAndDateTableBody, PersonInfoTableBody1, PersonInf
     }
     AddSignTable(doc, [{content: "Podpis odbiorcy"}], {left: 125}, lastY2+4);
 
-    AddAdditionalInfoTable(doc, AdditionalInfoTableBody, doc.lastAutoTable.finalY);
+    if(AdditionalInfoTableBody[0]["0"] !== "") {
+        AddAdditionalInfoTable(doc, AdditionalInfoTableBody, doc.lastAutoTable.finalY);
+    }
 
     let str = 'Strona ' + doc.internal.getNumberOfPages();
     str = str + ' z ' + totalPagesExp;
@@ -609,7 +617,7 @@ function GenerateDocument(PlaceAndDateTableBody, PersonInfoTableBody1, PersonInf
     return doc
 }
 function DownloadInvoice(props){
-    let doc = GenerateDocument(PreparePlaceAndDateBody(props),PreparePersonInfoBody(props, "from"), PreparePersonInfoBody(props, "to"), PreparePersonInfoBody(props, "recipient"),props.info.invoiceNumber, PrepareItemBody(props), PrepareTaxTableBody(props), PrepareSummaryBody(props), PrepareFinalTableHead(props), PrepareFinalTableContent(props), [{0: props.info.notes}]);
+    let doc = GenerateDocument(PreparePlaceAndDateBody(props),PreparePersonInfoBody(props, "from"), PreparePersonInfoBody(props, "to"), PreparePersonInfoBody(props, "recipient"),props.info.invoiceNumber, PrepareItemBody(props), PrepareTaxTableBody(props), PrepareSummaryBody(props), PrepareFinalTableHead(props), PrepareFinalTableContent(props), PrepareAdditionalInfoBody(props));
     doc.setProperties({
         title: 'Example: ',
         subject: 'invoice'
@@ -617,7 +625,7 @@ function DownloadInvoice(props){
     doc.save('table.pdf');
 }
 function DisplayInvoice(props){
-    let doc = GenerateDocument(PreparePlaceAndDateBody(props),PreparePersonInfoBody(props, "from"), PreparePersonInfoBody(props, "to"), PreparePersonInfoBody(props, "recipient"),props.info.invoiceNumber, PrepareItemBody(props), PrepareTaxTableBody(props), PrepareSummaryBody(props), PrepareFinalTableHead(props), PrepareFinalTableContent(props), [{0: props.info.notes}]);
+    let doc = GenerateDocument(PreparePlaceAndDateBody(props),PreparePersonInfoBody(props, "from"), PreparePersonInfoBody(props, "to"), PreparePersonInfoBody(props, "recipient"),props.info.invoiceNumber, PrepareItemBody(props), PrepareTaxTableBody(props), PrepareSummaryBody(props), PrepareFinalTableHead(props), PrepareFinalTableContent(props), PrepareAdditionalInfoBody(props));
     doc.setProperties({
         title: 'Example: ',
         subject: 'invoice'
@@ -654,7 +662,7 @@ class InvoiceModal extends React.Component {
                     <div id="invoiceCapture">
                         <div className="d-flex flex-row justify-content-between align-items-start bg-light w-100 p-4">
                             <div className="w-100">
-                                <h4 className="fw-bold my-2">{this.props.info.billFrom||''}</h4>
+                                <h4 style={{width: '90%'}} className="fw-bold my-2">{this.props.info.billFrom||''}</h4>
                                 <h6 className="fw-bold text-secondary mb-1">
                                     Faktura#: {this.props.info.invoiceNumber||''}
                                 </h6>
