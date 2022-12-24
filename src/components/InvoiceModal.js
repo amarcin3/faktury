@@ -118,6 +118,7 @@ function PreparePlaceAndDateBody(props){
 }
 function PreparePersonInfoBody(props, who){
     let data = "";
+    let what = ["NIP: ", "", "", "Tel: ", "Email: ", "Konto: ", "Bank: "];
     let info = [];
     if(who === "from"){
         info.push(props.info.billFromNip);
@@ -157,8 +158,8 @@ function PreparePersonInfoBody(props, who){
             }
         }
         if(info[i] !== ""){
-            if (data !== "") data += "\n" + info[i];
-            else data += info[i];
+            if (data !== "") data += "\n" + what[i] + info[i];
+            else data += what[i] + info[i];
         }
     }
     return {0: data};
@@ -258,7 +259,6 @@ function PrepareAdditionalInfoBody(props){
 }
 //PDF making
 function AddPlaceAndDateTable(doc, body){
-    console.error = () => {};
     doc.autoTable({
         head: [['Miejsce wystawienia: ', 'Data wystawienia: ', 'Termin płatności: ']],
         body: body,

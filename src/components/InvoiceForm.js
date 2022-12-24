@@ -9,6 +9,7 @@ import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import InvoiceItem from './InvoiceItem';
 import InvoiceModal from './InvoiceModal';
+import FromInfo from './FromInfo.json';
 
 const dt = new Date();
 
@@ -48,13 +49,13 @@ class InvoiceForm extends React.Component {
             discountAmountInd: {"__html": "<span class=\"fw-bold float-end\" >0.00 zł</span>"},
 
 
-            billFromNip: 'Test from nip',
-            billFrom: 'Test from Company',
-            billFromAddress: 'Test from address',
-            billFromPhone: 'Test from phone',
-            billFromEmail: 'TestFromEmail@test',
-            billFromBillingAddress: 'Test from billing address',
-            billFromBank: 'Test from bank',
+            billFromNip: FromInfo.billFromNip,
+            billFrom: FromInfo.billFrom,
+            billFromAddress: FromInfo.billFromAddress,
+            billFromPhone: FromInfo.billFromPhone,
+            billFromEmail: FromInfo.billFromEmail,
+            billFromBillingAddress: FromInfo.billFromBillingAddress,
+            billFromBank: FromInfo.billFromBank,
 
             billToNip: 'Test to nip',
             billTo: 'Test to Company',
@@ -369,11 +370,11 @@ class InvoiceForm extends React.Component {
                             </Col>
                             <Col>
                                 <Form.Label className="fw-bold">Nabywca:</Form.Label>
-                                <Form.Control placeholder={"NIP"}                             value={this.state.billToNip}                   type="text"  name="billToNip"                   className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)} required="required"/>
+                                <Form.Control placeholder={"NIP"}                             value={this.state.billToNip}                   type="text"  name="billToNip"                   className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
                                 <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billTo}                      type="text"  name="billTo"                      className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} required="required"/>
                                 <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billToAddress}               type="text"  name="billToAddress"               className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} required="required"/>
                                 <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billToPhone}                 type="text"  name="billToPhone"                 className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billToEmail}                 type="email" name="billToEmail"                 className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} />
+                                <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billToEmail}                 type="email" name="billToEmail"                 className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)}/>
                                 <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billToBillingAddress}        type="text"  name="billToBillingAddress"        className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
                                 <Form.Control placeholder={"Bank"}                            value={this.state.billToBank}                  type="text"  name="billToBank"                  className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
                             </Col>
@@ -434,12 +435,12 @@ class InvoiceForm extends React.Component {
                         </Form.Group>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">Forma płatności:</Form.Label>
-                            <Form.Select onChange={event => this.onPaymentMethodChange({paymentMethod: event.target.value})} className="btn btn-light my-1" aria-label="Change Payment Method">
+                            <Form.Select onChange={event => this.onPaymentMethodChange({paymentMethod: event.target.value})} className="btn btn-light my-1" aria-label="Change Payment Method" defaultValue={"Karta płatnicza"}>
                                 <option value="Czek">Czek (0 dni; 100%)</option>
                                 <option value="Częściowy kredyt 14 dni">Częściowy kredyt 14 dni (14 dni; 50%)</option>
                                 <option value="Częściowy kredyt 7 dni">Częściowy kredyt 7 dni (7 dni; 50%)</option>
                                 <option value="Gotówka">Gotówka (0 dni; 100%)</option>
-                                <option value="Karta płatnicza" selected="selected">Karta płatnicza (0 dni; 100%)</option>
+                                <option value="Karta płatnicza">Karta płatnicza (0 dni; 100%)</option>
                                 <option value="Kredyt 14 dni">Kredyt 14 dni (14 dni; 0%)</option>
                                 <option value="Kredyt 7 dni">Kredyt 7 dni (7 dni; 0%)</option>s
                             </Form.Select>
