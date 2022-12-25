@@ -300,6 +300,10 @@ class InvoiceForm extends React.Component {
         this.handleCalculateTotal();
     };
     editField = (event) => {
+        console.log(event.target.name);
+        if (event.target.name.startsWith("bill")) {
+
+        }
         this.setState({
             [event.target.name]: event.target.value
         });
@@ -330,125 +334,131 @@ class InvoiceForm extends React.Component {
     };
     closeModal = () => this.setState({isOpen: false});
     render() {
-        return (<Form onSubmit={(event) => {this.onBeforeModal(); this.openModal(event)}}>
-            <Row>
-                <Col md={8} lg={9}>
-                    <Card className="p-4 p-xl-5 my-3 my-xl-4">
-                        <div className="d-flex flex-row align-items-start justify-content-between mb-3">
-                            <div className="d-flex flex-column">
+        return (
+            <Form onSubmit={(event) => {this.onBeforeModal(); this.openModal(event)}}>
+                <Row>
+                    <Col md={8} lg={9}>
+                        <Card className="p-4 p-xl-5 my-3 my-xl-4">
+                            <div className="d-flex flex-row align-items-start justify-content-between mb-3">
                                 <div className="d-flex flex-column">
+                                    <div className="d-flex flex-column">
+                                        <div className="d-flex flex-row align-items-center">
+                                            <span className="fw-bold d-block me-2">Data&nbsp;wystawienia:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                            <Form.Control type="date" value={this.state.dateOfIssue} name={"dateOfIssue"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px', marginBottom: '10px'}} required="required"/>
+                                        </div>
+                                    </div>
                                     <div className="d-flex flex-row align-items-center">
-                                        <span className="fw-bold d-block me-2">Data&nbsp;wystawienia:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                                        <Form.Control type="date" value={this.state.dateOfIssue} name={"dateOfIssue"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px', marginBottom: '10px'}} required="required"/>
+                                        <span className="fw-bold d-block me-2">Termin&nbsp;płatności:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                        <Form.Control type="date" value={this.state.dueDate} name={"dueDate"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px', marginBottom: '10px'}} required="required"/>
+                                    </div>
+                                    <div className="d-flex flex-row align-items-center">
+                                        <span className="fw-bold d-block me-2">Miejsce&nbsp;wystawienia:&nbsp;</span>
+                                        <Form.Control type="text" value={this.state.placeOfIssue} name={"placeOfIssue"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px'}} required="required"/>
                                     </div>
                                 </div>
                                 <div className="d-flex flex-row align-items-center">
-                                    <span className="fw-bold d-block me-2">Termin&nbsp;płatności:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                                    <Form.Control type="date" value={this.state.dueDate} name={"dueDate"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px', marginBottom: '10px'}} required="required"/>
-                                </div>
-                                <div className="d-flex flex-row align-items-center">
-                                    <span className="fw-bold d-block me-2">Miejsce&nbsp;wystawienia:&nbsp;</span>
-                                    <Form.Control type="text" value={this.state.placeOfIssue} name={"placeOfIssue"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px'}} required="required"/>
+                                    <span className="fw-bold me-2">Numer&nbsp;faktury:&nbsp;</span>
+                                    <Form.Control type="text" value={this.state.invoiceNumber} name={"invoiceNumber"} onChange={(event) => this.editField(event)} min="1" style={{maxWidth: '70px'}} required="required"/>
                                 </div>
                             </div>
-                            <div className="d-flex flex-row align-items-center">
-                                <span className="fw-bold me-2">Numer&nbsp;faktury:&nbsp;</span>
-                                <Form.Control type="text" value={this.state.invoiceNumber} name={"invoiceNumber"} onChange={(event) => this.editField(event)} min="1" style={{maxWidth: '70px'}} required="required"/>
-                            </div>
+                            <hr className="my-4"/>
+                            <Row className="mb-5">
+                                <Col>
+                                    <span className="fw-bold">Podpowiedzi:</span>
+                                    <ul className="list" style={{listStyle: "none"}} id="list"></ul>
+                                </Col>
+                                <Col>
+                                    <Form.Label className="fw-bold">Sprzedawca:</Form.Label>
+                                    <Form.Control placeholder={"NIP"}                             value={this.state.billFromNip}                 type="text"  name="billFromNip"                 className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)} required="required"/>
+                                    <Form.Control placeholder={"Nazwa firmy sprzedawcy"} rows={3} value={this.state.billFrom}                    type="text"  name="billFrom"                    className="my-2" autoComplete="Name"           onChange={(event) => this.editField(event)} required="required"/>
+                                    <Form.Control placeholder={"Adres firmy sprzedawcy"}          value={this.state.billFromAddress}             type="text"  name="billFromAddress"             className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} required="required"/>
+                                    <Form.Control placeholder={"Nr telefonu sprzedawcy"}          value={this.state.billFromPhone}               type="text"  name="billFromPhone"               className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/*required="required"*//>
+                                    <Form.Control placeholder={"Adres email sprzedawcy"}          value={this.state.billFromEmail}               type="email" name="billFromEmail"               className="my-2" autoComplete="Email"          onChange={(event) => this.editField(event)}/>
+                                    <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billFromBillingAddress}      type="text"  name="billFromBillingAddress"      className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
+                                    <Form.Control placeholder={"Bank"}                            value={this.state.billFromBank}                type="text"  name="billFromBank"                className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
+                                </Col>
+                                <Col>
+                                    <Form.Label className="fw-bold">Nabywca:</Form.Label>
+                                    <Form.Control placeholder={"NIP"}                             value={this.state.billToNip}                   type="text"  name="billToNip"                   className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
+                                    <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billTo}                      type="text"  name="billTo"                      className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} required="required"/>
+                                    <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billToAddress}               type="text"  name="billToAddress"               className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} required="required"/>
+                                    <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billToPhone}                 type="text"  name="billToPhone"                 className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/>
+                                    <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billToEmail}                 type="email" name="billToEmail"                 className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)}/>
+                                    <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billToBillingAddress}        type="text"  name="billToBillingAddress"        className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
+                                    <Form.Control placeholder={"Bank"}                            value={this.state.billToBank}                  type="text"  name="billToBank"                  className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
+                                </Col>
+                                <Col>
+                                    <Form.Label className="fw-bold">Odbiorca:</Form.Label>
+                                    <Form.Control placeholder={"NIP"}                             value={this.state.billRecipientNip}            type="text"  name="billRecipientNip"            className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
+                                    <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billRecipient}               type="text"  name="billRecipient"               className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} />
+                                    <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billRecipientAddress}        type="text"  name="billRecipientAddress"        className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)}/>
+                                    <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billRecipientPhone}          type="text"  name="billRecipientPhone"          className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/>
+                                    <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billRecipientEmail}          type="email" name="billRecipientEmail"          className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} />
+                                    <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billRecipientBillingAddress} type="text"  name="billRecipientBillingAddress" className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
+                                    <Form.Control placeholder={"Bank"}                            value={this.state.billRecipientBank}           type="text"  name="billRecipientBank"           className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
+                                </Col>
+                            </Row>
+                            <InvoiceItem onItemizedItemEdit={this.onItemizedItemEdit.bind(this)} onRowAdd={this.handleAddEvent.bind(this)} onRowDel={this.handleRowDel.bind(this)} currency={this.state.currency} items={this.state.items}/>
+                            <Row className="mt-4 justify-content-end">
+                                <Col lg={6}>
+                                    <div className="d-flex flex-row align-items-start justify-content-between">
+                                        <span className="fw-bold">Suma&nbsp;częściowa:</span>
+                                        <span className="fw-bold">{this.state.subTotal} {this.state.currency}</span>
+                                    </div>
+                                    <div className="d-flex flex-row align-items-start justify-content-between mt-2">
+                                        <span className="fw-bold">Rabat:</span>
+                                        <div dangerouslySetInnerHTML={this.state.discountAmountInd} />
+                                    </div>
+                                    <div className="d-flex flex-row align-items-start justify-content-between mt-2">
+                                        <span className="fw-bold">Wartość&nbsp;podatku&nbsp;VAT:</span>
+                                        <div dangerouslySetInnerHTML={this.state.taxAmountInd} />
+                                    </div>
+                                    <hr/>
+                                    <div className="d-flex flex-row align-items-start justify-content-between" style={{fontSize: '1.125rem'}}>
+                                        <span className="fw-bold">Łącznie:</span>
+                                        <span className="fw-bold">{this.state.total || 0} {this.state.currency}</span>
+                                    </div>
+                                </Col>
+                            </Row>
+                            <hr className="my-4"/>
+                            <Form.Label className="fw-bold">Dodatkowe&nbsp;informacje:</Form.Label>
+                            <Form.Control placeholder="" name="notes" value={this.state.notes} onChange={(event) => this.editField(event)} as="textarea" className="my-2" rows={1}/>
+                        </Card>
+                    </Col>
+                    <Col md={4} lg={3}>
+                        <div className="sticky-top pt-md-3 pt-xl-4">
+                            <Button variant="primary" type="submit" className="d-block w-100">Sprawdź poprawność faktury</Button>
+                            <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmount={this.state.taxAmount} taxAmountInd={this.state.taxAmountInd} discountAmount={this.state.discountAmount} discountAmountInd={this.state.discountAmountInd} total={this.state.total}/>
+                            <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Waluta:</Form.Label>
+                                <Form.Select onChange={(event) => {this.onCurrencyChange({currency: event.target.value}); this.handleCalculateTotal()}} className="btn btn-light my-1" aria-label="Change Currency">
+                                    <option value="zł">PLN (Polski Złoty)</option>
+                                    <option value="$">USD (United States Dollar)</option>
+                                    <option value="£">GBP (British Pound Sterling)</option>
+                                    <option value="¥">JPY (Japanese Yen)</option>
+                                    <option value="$">CAD (Canadian Dollar)</option>
+                                    <option value="$">AUD (Australian Dollar)</option>
+                                    <option value="$">SGD (Singapore Dollar)</option>
+                                    <option value="¥">CNY (Chinese Renminbi)</option>
+                                </Form.Select>
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Forma płatności:</Form.Label>
+                                <Form.Select onChange={event => this.onPaymentMethodChange({paymentMethod: event.target.value})} className="btn btn-light my-1" aria-label="Change Payment Method" defaultValue={"Karta płatnicza"}>
+                                    <option value="Czek">Czek (0 dni; 100%)</option>
+                                    <option value="Częściowy kredyt 14 dni">Częściowy kredyt 14 dni (14 dni; 50%)</option>
+                                    <option value="Częściowy kredyt 7 dni">Częściowy kredyt 7 dni (7 dni; 50%)</option>
+                                    <option value="Gotówka">Gotówka (0 dni; 100%)</option>
+                                    <option value="Karta płatnicza">Karta płatnicza (0 dni; 100%)</option>
+                                    <option value="Kredyt 14 dni">Kredyt 14 dni (14 dni; 0%)</option>
+                                    <option value="Kredyt 7 dni">Kredyt 7 dni (7 dni; 0%)</option>s
+                                </Form.Select>
+                            </Form.Group>
                         </div>
-                        <hr className="my-4"/>
-                        <Row className="mb-5">
-                            <Col>
-                                <Form.Label className="fw-bold">Sprzedawca:</Form.Label>
-                                <Form.Control placeholder={"NIP"}                             value={this.state.billFromNip}                 type="text"  name="billFromNip"                 className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)} required="required"/>
-                                <Form.Control placeholder={"Nazwa firmy sprzedawcy"} rows={3} value={this.state.billFrom}                    type="text"  name="billFrom"                    className="my-2" autoComplete="Name"           onChange={(event) => this.editField(event)} required="required"/>
-                                <Form.Control placeholder={"Adres firmy sprzedawcy"}          value={this.state.billFromAddress}             type="text"  name="billFromAddress"             className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} required="required"/>
-                                <Form.Control placeholder={"Nr telefonu sprzedawcy"}          value={this.state.billFromPhone}               type="text"  name="billFromPhone"               className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/*required="required"*//>
-                                <Form.Control placeholder={"Adres email sprzedawcy"}          value={this.state.billFromEmail}               type="email" name="billFromEmail"               className="my-2" autoComplete="Email"          onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billFromBillingAddress}      type="text"  name="billFromBillingAddress"      className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Bank"}                            value={this.state.billFromBank}                type="text"  name="billFromBank"                className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
-                            </Col>
-                            <Col>
-                                <Form.Label className="fw-bold">Nabywca:</Form.Label>
-                                <Form.Control placeholder={"NIP"}                             value={this.state.billToNip}                   type="text"  name="billToNip"                   className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billTo}                      type="text"  name="billTo"                      className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} required="required"/>
-                                <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billToAddress}               type="text"  name="billToAddress"               className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} required="required"/>
-                                <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billToPhone}                 type="text"  name="billToPhone"                 className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billToEmail}                 type="email" name="billToEmail"                 className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billToBillingAddress}        type="text"  name="billToBillingAddress"        className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Bank"}                            value={this.state.billToBank}                  type="text"  name="billToBank"                  className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
-                            </Col>
-                            <Col>
-                                <Form.Label className="fw-bold">Odbiorca:</Form.Label>
-                                <Form.Control placeholder={"NIP"}                             value={this.state.billRecipientNip}            type="text"  name="billRecipientNip"            className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billRecipient}               type="text"  name="billRecipient"               className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} />
-                                <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billRecipientAddress}        type="text"  name="billRecipientAddress"        className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billRecipientPhone}          type="text"  name="billRecipientPhone"          className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billRecipientEmail}          type="email" name="billRecipientEmail"          className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} />
-                                <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billRecipientBillingAddress} type="text"  name="billRecipientBillingAddress" className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)}/>
-                                <Form.Control placeholder={"Bank"}                            value={this.state.billRecipientBank}           type="text"  name="billRecipientBank"           className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)}/>
-                            </Col>
-                        </Row>
-                        <InvoiceItem onItemizedItemEdit={this.onItemizedItemEdit.bind(this)} onRowAdd={this.handleAddEvent.bind(this)} onRowDel={this.handleRowDel.bind(this)} currency={this.state.currency} items={this.state.items}/>
-                        <Row className="mt-4 justify-content-end">
-                            <Col lg={6}>
-                                <div className="d-flex flex-row align-items-start justify-content-between">
-                                    <span className="fw-bold">Suma&nbsp;częściowa:</span>
-                                    <span className="fw-bold">{this.state.subTotal} {this.state.currency}</span>
-                                </div>
-                                <div className="d-flex flex-row align-items-start justify-content-between mt-2">
-                                    <span className="fw-bold">Rabat:</span>
-                                    <div dangerouslySetInnerHTML={this.state.discountAmountInd} />
-                                </div>
-                                <div className="d-flex flex-row align-items-start justify-content-between mt-2">
-                                    <span className="fw-bold">Wartość&nbsp;podatku&nbsp;VAT:</span>
-                                    <div dangerouslySetInnerHTML={this.state.taxAmountInd} />
-                                </div>
-                                <hr/>
-                                <div className="d-flex flex-row align-items-start justify-content-between" style={{fontSize: '1.125rem'}}>
-                                    <span className="fw-bold">Łącznie:</span>
-                                    <span className="fw-bold">{this.state.total || 0} {this.state.currency}</span>
-                                </div>
-                            </Col>
-                        </Row>
-                        <hr className="my-4"/>
-                        <Form.Label className="fw-bold">Dodatkowe&nbsp;informacje:</Form.Label>
-                        <Form.Control placeholder="" name="notes" value={this.state.notes} onChange={(event) => this.editField(event)} as="textarea" className="my-2" rows={1}/>
-                    </Card>
-                </Col>
-                <Col md={4} lg={3}>
-                    <div className="sticky-top pt-md-3 pt-xl-4">
-                        <Button variant="primary" type="submit" className="d-block w-100">Sprawdź poprawność faktury</Button>
-                        <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmount={this.state.taxAmount} taxAmountInd={this.state.taxAmountInd} discountAmount={this.state.discountAmount} discountAmountInd={this.state.discountAmountInd} total={this.state.total}/>
-                        <Form.Group className="mb-3">
-                            <Form.Label className="fw-bold">Waluta:</Form.Label>
-                            <Form.Select onChange={(event) => {this.onCurrencyChange({currency: event.target.value}); this.handleCalculateTotal()}} className="btn btn-light my-1" aria-label="Change Currency">
-                                <option value="zł">PLN (Polski Złoty)</option>
-                                <option value="$">USD (United States Dollar)</option>
-                                <option value="£">GBP (British Pound Sterling)</option>
-                                <option value="¥">JPY (Japanese Yen)</option>
-                                <option value="$">CAD (Canadian Dollar)</option>
-                                <option value="$">AUD (Australian Dollar)</option>
-                                <option value="$">SGD (Singapore Dollar)</option>
-                                <option value="¥">CNY (Chinese Renminbi)</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label className="fw-bold">Forma płatności:</Form.Label>
-                            <Form.Select onChange={event => this.onPaymentMethodChange({paymentMethod: event.target.value})} className="btn btn-light my-1" aria-label="Change Payment Method" defaultValue={"Karta płatnicza"}>
-                                <option value="Czek">Czek (0 dni; 100%)</option>
-                                <option value="Częściowy kredyt 14 dni">Częściowy kredyt 14 dni (14 dni; 50%)</option>
-                                <option value="Częściowy kredyt 7 dni">Częściowy kredyt 7 dni (7 dni; 50%)</option>
-                                <option value="Gotówka">Gotówka (0 dni; 100%)</option>
-                                <option value="Karta płatnicza">Karta płatnicza (0 dni; 100%)</option>
-                                <option value="Kredyt 14 dni">Kredyt 14 dni (14 dni; 0%)</option>
-                                <option value="Kredyt 7 dni">Kredyt 7 dni (7 dni; 0%)</option>s
-                            </Form.Select>
-                        </Form.Group>
-                    </div>
-                </Col>
-            </Row>
-        </Form>)
+                    </Col>
+                </Row>
+            </Form>
+        )
     }
 }
 

@@ -1,0 +1,15 @@
+[
+  {
+    "NIP": "6423197094",
+    "Name": "Powiat Rybnicki",
+    "Address": "3 Maja 31, 44-200 Rybnik"
+  },
+  {
+    "NIP": "1234567890",
+    "Name": "Powiat Rybnicki",
+    "Address": "3 Maja 31, 44-200 Rybnik",
+    "Phone": "123456789",
+    "BillingAddress": "123123132231",
+    "Bank: ": "TestBank"
+  }
+]
