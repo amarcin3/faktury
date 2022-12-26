@@ -76,6 +76,9 @@ class InvoiceForm extends React.Component {
             notes: '',
             total: '0.00',
             subTotal: '0.00',
+
+            podp1: '',
+            podp2: '',
         };
         this.state.items = [{
             id: '',
@@ -95,6 +98,35 @@ class InvoiceForm extends React.Component {
         }];
         this.handleCalculateTotal();
         this.editField = this.editField.bind(this);
+        this.listRef = React.createRef();
+        this.names = [
+            { podp1: "Ayla",     podp2: "0" },
+            { podp1: "Jake",     podp2: "1" },
+            { podp1: "Sean",     podp2: "2" },
+            { podp1: "Henry",    podp2: "3" },
+            { podp1: "Brad",     podp2: "4" },
+            { podp1: "Stephen",  podp2: "5" },
+            { podp1: "Taylor",   podp2: "6" },
+            { podp1: "Timmy",    podp2: "7" },
+            { podp1: "Cathy",    podp2: "8" },
+            { podp1: "John",     podp2: "9" },
+            { podp1: "Amanda",   podp2: "10" },
+            { podp1: "Amara",    podp2: "11" },
+            { podp1: "Sam",      podp2: "12" },
+            { podp1: "Sandy",    podp2: "13" },
+            { podp1: "Danny",    podp2: "14" },
+            { podp1: "Ellen",    podp2: "15" },
+            { podp1: "Camille",  podp2: "16" },
+            { podp1: "Chloe",    podp2: "17" },
+            { podp1: "Emily",    podp2: "18" },
+            { podp1: "Nadia",    podp2: "19" },
+            { podp1: "Mitchell", podp2: "20" },
+            { podp1: "Harvey",   podp2: "21" },
+            { podp1: "Lucy",     podp2: "22" },
+            { podp1: "Amy",      podp2: "23" },
+            { podp1: "Glen",     podp2: "24" },
+            { podp1: "Peter",    podp2: "25" }
+        ];
     }
 
     componentDidMount() {
@@ -299,11 +331,9 @@ class InvoiceForm extends React.Component {
 
         this.handleCalculateTotal();
     };
+
     editField = (event) => {
         console.log(event.target.name);
-        if (event.target.name.startsWith("bill")) {
-
-        }
         this.setState({
             [event.target.name]: event.target.value
         });
@@ -316,6 +346,41 @@ class InvoiceForm extends React.Component {
         this.setState(selectedOption);
     }
 
+    removeElements = () => {
+        const items = this.listRef.current.querySelectorAll('.list-items');
+        items.forEach((item) => {
+            item.remove();
+        });
+    };
+    displayList = (list, sortType, orderby, description) => {
+        let sortedList;
+        if (sortType === 'text') {
+            sortedList = list.sort((a, b) => (a[orderby] > b[orderby]) ? 1 : (b[orderby] > a[orderby]) ? -1 : 0);
+        } else if (sortType === 'number') {
+            sortedList = list.sort((a, b) => a[orderby] - b[orderby]);
+        }
+        this.removeElements();
+
+        sortedList.forEach((i) => {
+            if (i[orderby].toLowerCase().startsWith(this.state.podp1.toLowerCase())) {
+                const listItem = document.createElement('li');
+                listItem.classList.add('list-items');
+                listItem.style.cursor = 'pointer';
+                listItem.onclick = () => this.displayNames(i);
+                let word = `<b>${i[orderby].substring(0, this.state.podp1.length)}</b>`;
+                word += i[orderby].substring(this.state.podp1.length);
+                word += `<p>${i[description]}</p>`;
+                listItem.innerHTML = word;
+                this.listRef.current.appendChild(listItem);
+            }
+        });
+    };
+    displayNames = (value) => {
+        this.setState({ podp1: value.podp1 });
+        this.setState({ podp2: value.podp2 });
+    };
+
+
     onBeforeModal = () => {
         this.setState({
             dueDateF: (this.state.dueDate).substring(8,10) + '.' + (this.state.dueDate).substring(5,7) + '.' + (this.state.dueDate).substring(0,4),
@@ -323,10 +388,7 @@ class InvoiceForm extends React.Component {
         this.setState({
             dateOfIssueF: (this.state.dateOfIssue).substring(8,10) + '.' + (this.state.dateOfIssue).substring(5,7) + '.' + (this.state.dateOfIssue).substring(0,4),
         })
-
-
     }
-
     openModal = (event) => {
         event.preventDefault()
         this.handleCalculateTotal()
@@ -365,7 +427,43 @@ class InvoiceForm extends React.Component {
                             <Row className="mb-5">
                                 <Col>
                                     <span className="fw-bold">Podpowiedzi:</span>
-                                    <ul className="list" style={{listStyle: "none"}} id="list"></ul>
+                                    <ul id="list" ref={this.listRef} />
+                                    <input
+                                        id="podp1"
+                                        value={this.state.podp1}
+                                        onChange={(e) => this.setState({ podp1: e.target.value })}
+                                        onKeyUp={() => this.displayList(this.names, 'text', 'podp1', 'podp2')}
+                                        onFocus={() => setTimeout(() => this.displayList(this.names, 'text', 'podp1', 'podp2'), 0)}
+                                        onBlur={() => {
+                                            setTimeout(() => {
+                                                if (document.activeElement.id === 'podp2') {
+                                                    this.removeElements();
+                                                } else {
+                                                    setTimeout(() => {
+                                                        this.removeElements();
+                                                    }, 200);
+                                                }
+                                            }, 0);
+                                        }}
+                                    />
+                                    <input
+                                        id="podp2"
+                                        value={this.state.podp2}
+                                        onChange={(e) => this.setState({ podp2: e.target.value })}
+                                        onKeyUp={() => this.displayList(this.names, 'number', 'podp2', 'podp1')}
+                                        onFocus={() => setTimeout(() => this.displayList(this.names, 'number', 'podp2', 'podp1'), 0)}
+                                        onBlur={() => {
+                                            setTimeout(() => {
+                                                if (document.activeElement.id === 'podp1') {
+                                                    this.removeElements();
+                                                } else {
+                                                    setTimeout(() => {
+                                                        this.removeElements();
+                                                    }, 200);
+                                                }
+                                            }, 0);
+                                        }}
+                                    />
                                 </Col>
                                 <Col>
                                     <Form.Label className="fw-bold">Sprzedawca:</Form.Label>
