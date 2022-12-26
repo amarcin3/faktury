@@ -1,0 +1,20 @@
+[
+  {
+    "billRecipientNip": "6422741420",
+    "billRecipient": "Kwiaciarnia Kwiaty u Kasi Katarzyna Abrahamczyk",
+    "billRecipientAddress": "Główna 81, 44-290 Jejkowice",
+    "billRecipientPhone": " 692188497",
+    "billRecipientEmail": "",
+    "billRecipientBillingAddress": "46105013441000009250490795",
+    "billRecipientBank": "ING Bank Śląski"
+  },
+  {
+    "billRecipientNip": "",
+    "billRecipient": "",
+    "billRecipientAddress": "",
+    "billRecipientPhone": "",
+    "billRecipientEmail": "",
+    "billRecipientBillingAddress": "",
+    "billRecipientBank": ""
+  }
+]
