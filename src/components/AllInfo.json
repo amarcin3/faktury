@@ -1,0 +1,75 @@
+[
+  [
+    {
+      "billFromNip": "",
+      "billFrom": "",
+      "billFromAddress": "",
+      "billFromPhone": "",
+      "billFromEmail": "",
+      "billFromBillingAddress": "",
+      "billFromBank": ""
+    },
+    {
+      "billFromNip": "6422741420",
+      "billFrom": "Kwiaciarnia Kwiaty u Kasi Katarzyna Abrahamczyk",
+      "billFromAddress": "Główna 81, 44-290 Jejkowice",
+      "billFromPhone": "692188497",
+      "billFromEmail": "",
+      "billFromBillingAddress": "46105013441000009250490795",
+      "billFromBank": "ING Bank Śląski"
+    }
+  ],
+  [
+    {
+      "billToNip": "6423197094",
+      "billTo": "Powiat Rybnicki",
+      "billToAddress": "3 Maja 31, 44-200 Rybnik",
+      "billToPhone": "",
+      "billToEmail": "",
+      "billToBillingAddress": "",
+      "billToBank": ""
+    },
+    {
+      "billToNip": "1234567890",
+      "billTo": "Powiat Rybnick1",
+      "billToAddress": "20 Maja 31, 44-222 Rybnik",
+      "billToPhone": "123456789",
+      "billToEmail": "",
+      "billToBillingAddress": "",
+      "billToBank": ""
+    },
+    {
+      "billToNip": "",
+      "billTo": "",
+      "billToAddress": "",
+      "billToPhone": "",
+      "billToEmail": "",
+      "billToBillingAddress": "",
+      "billToBank": ""
+    }
+  ],
+  [
+    {
+      "billRecipientNip": "6422741420",
+      "billRecipient": "Kwiaciarnia Kwiaty u Kasi Katarzyna Abrahamczyk",
+      "billRecipientAddress": "Główna 81, 44-290 Jejkowice",
+      "billRecipientPhone": " 692188497",
+      "billRecipientEmail": "",
+      "billRecipientBillingAddress": "46105013441000009250490795",
+      "billRecipientBank": "ING Bank Śląski"
+    },
+    {
+      "billRecipientNip": "",
+      "billRecipient": "",
+      "billRecipientAddress": "",
+      "billRecipientPhone": "",
+      "billRecipientEmail": "",
+      "billRecipientBillingAddress": "",
+      "billRecipientBank": ""
+    }
+  ],
+  {
+    "InvoiceNumberingScheme": "FS",
+    "lastInvoiceNumber": 53
+  }
+]

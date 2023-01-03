@@ -9,9 +9,30 @@ import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import InvoiceItem from './InvoiceItem';
 import InvoiceModal from './InvoiceModal';
-import FromInfo from './FromInfo.json';
-import ToInfo from './ToInfo.json';
-import RecipientInfo from './RecipientInfo.json';
+
+import AllInfo from './AllInfo.json';
+
+if (localStorage.getItem('AllInfo') !== null) {
+    AllInfo[0] = AllInfo[0].concat(JSON.parse(localStorage.getItem('AllInfo'))[0]).reduce((acc, item) => {
+        if (!acc.some(i => i.billFromNip === item.billFromNip && i.billFrom === item.billFrom && i.billFromAddress === item.billFromAddress && i.billFromPhone === item.billFromPhone && i.billFromEmail === item.billFromEmail && i.billFromBillingAddress === item.billFromBillingAddress && i.billFromBank === item.billFromBank)) {
+            acc.push(item);
+        }
+        return acc;
+    }, []);
+    AllInfo[1] = AllInfo[1].concat(JSON.parse(localStorage.getItem('AllInfo'))[1]).reduce((acc, item) => {
+        if (!acc.some(i => i.billToNip === item.billToNip && i.billTo === item.billTo && i.billToAddress === item.billToAddress && i.billToPhone === item.billToPhone && i.billToEmail === item.billToEmail && i.billToBillingAddress === item.billToBillingAddress && i.billToBank === item.billToBank)) {
+            acc.push(item);
+        }
+        return acc;
+    }, []);
+    AllInfo[2] = AllInfo[2].concat(JSON.parse(localStorage.getItem('AllInfo'))[2]).reduce((acc, item) => {
+        if (!acc.some(i => i.billRecipientNip === item.billRecipientNip && i.billRecipient === item.billRecipient && i.billRecipientAddress === item.billRecipientAddress && i.billRecipientPhone === item.billRecipientPhone && i.billRecipientEmail === item.billRecipientEmail && i.billRecipientBillingAddress === item.billRecipientBillingAddress && i.billRecipientBank === item.billRecipientBank)) {
+            acc.push(item);
+        }
+        return acc;
+    }, []);
+}
+localStorage.setItem('AllInfo', JSON.stringify(AllInfo));
 
 const dt = new Date();
 let mm = dt.getMonth() + 1;
@@ -42,13 +63,13 @@ class InvoiceForm extends React.Component {
             discountAmountInd: {"__html": "<span class=\"fw-bold float-end\" >0.00 zł</span>"},
 
 
-            billFromNip: FromInfo[0].billFromNip,
-            billFrom: FromInfo[0].billFrom,
-            billFromAddress: FromInfo[0].billFromAddress,
-            billFromPhone: FromInfo[0].billFromPhone,
-            billFromEmail: FromInfo[0].billFromEmail,
-            billFromBillingAddress: FromInfo[0].billFromBillingAddress,
-            billFromBank: FromInfo[0].billFromBank,
+            billFromNip:            AllInfo[0][1].billFromNip,
+            billFrom:               AllInfo[0][1].billFrom,
+            billFromAddress:        AllInfo[0][1].billFromAddress,
+            billFromPhone:          AllInfo[0][1].billFromPhone,
+            billFromEmail:          AllInfo[0][1].billFromEmail,
+            billFromBillingAddress: AllInfo[0][1].billFromBillingAddress,
+            billFromBank:           AllInfo[0][1].billFromBank,
 
             billToNip: '',
             billTo: '',
@@ -309,16 +330,16 @@ class InvoiceForm extends React.Component {
             item.remove();
         });
     };
-    displayList = (list, sortType, orderby, description, who) => {
+    displayList = (list, sortType, orderBy, description, who) => {
         let sortedList;
         if (sortType === 'text') {
-            sortedList = list.sort((a, b) => (a[orderby] > b[orderby]) ? 1 : (b[orderby] > a[orderby]) ? -1 : 0);
+            sortedList = list.sort((a, b) => (a[orderBy] > b[orderBy]) ? 1 : (b[orderBy] > a[orderBy]) ? -1 : 0);
         } else if (sortType === 'number') {
-            sortedList = list.sort((a, b) => a[orderby] - b[orderby]);
+            sortedList = list.sort((a, b) => a[orderBy] - b[orderBy]);
         }
         this.removeElements();
         sortedList.forEach((i) => {
-            if (i[orderby].toLowerCase().startsWith(this.state[orderby].toLowerCase())) {
+            if (i[orderBy].toLowerCase().startsWith(this.state[orderBy].toLowerCase())) {
                 const listItem = document.createElement('li');
                 listItem.classList.add('list-items');
                 listItem.style.cursor = 'pointer';
@@ -330,8 +351,8 @@ class InvoiceForm extends React.Component {
                 listItem.onmouseout = () => {listItem.style.backgroundColor = 'white';};
                 listItem.onclick = () => this.displayNames(i, who);
 
-                let word = `<b>${i[orderby].substring(0, this.state[orderby].length)}</b>`;
-                word += i[orderby].substring(this.state[orderby].length);
+                let word = `<b>${i[orderBy].substring(0, this.state[orderBy].length)}</b>`;
+                word += i[orderBy].substring(this.state[orderBy].length);
                 word += `<p style="color: #575757; font-size: 10px; margin: 0;">${i[description]}</p>`;
                 listItem.innerHTML = word;
                 this.listRef.current.appendChild(listItem);
@@ -340,8 +361,6 @@ class InvoiceForm extends React.Component {
     };
     displayNames = (value, who) => {
         this.removeElements();
-        this.setState({ podp1: value.podp1 });
-        this.setState({ podp2: value.podp2 });
         if (who === "From"){
             this.setState({billFromNip: value.billFromNip})
             this.setState({billFrom: value.billFrom})
@@ -371,6 +390,66 @@ class InvoiceForm extends React.Component {
         }
     };
 
+    checkIfNew = () => {
+        let from = {
+            billFromNip: this.state.billFromNip,
+            billFrom: this.state.billFrom,
+            billFromAddress: this.state.billFromAddress,
+            billFromPhone: this.state.billFromPhone,
+            billFromEmail: this.state.billFromEmail,
+            billFromBillingAddress: this.state.billFromBillingAddress,
+            billFromBank: this.state.billFromBank,
+        };
+        for(let i = 0; i < AllInfo[0].length; i++){
+            if (JSON.stringify(AllInfo[0][i]) === JSON.stringify(from)){
+                break;
+            }
+            else {
+                if (i === AllInfo[0].length - 1){
+                    AllInfo[0].push(from);
+                }
+            }
+        }
+        let to = {
+            billToNip: this.state.billToNip,
+            billTo: this.state.billTo,
+            billToAddress: this.state.billToAddress,
+            billToPhone: this.state.billToPhone,
+            billToEmail: this.state.billToEmail,
+            billToBillingAddress: this.state.billToBillingAddress,
+            billToBank: this.state.billToBank,
+        }
+        for(let i = 0; i < AllInfo[1].length; i++){
+            if (JSON.stringify(AllInfo[1][i]) === JSON.stringify(to)){
+                break;
+            }
+            else {
+                if (i === AllInfo[1].length - 1){
+                    AllInfo[1].push(to);
+                }
+            }
+        }
+        let recipient = {
+            billRecipientNip: this.state.billRecipientNip,
+            billRecipient: this.state.billRecipient,
+            billRecipientAddress: this.state.billRecipientAddress,
+            billRecipientPhone: this.state.billRecipientPhone,
+            billRecipientEmail: this.state.billRecipientEmail,
+            billRecipientBillingAddress: this.state.billRecipientBillingAddress,
+            billRecipientBank: this.state.billRecipientBank,
+        }
+        for(let i = 0; i < AllInfo[2].length; i++){
+            if (JSON.stringify(AllInfo[2][i]) === JSON.stringify(recipient)){
+                break;
+            }
+            else {
+                if (i === AllInfo[2].length - 1){
+                    AllInfo[2].push(recipient);
+                }
+            }
+        }
+        localStorage.setItem('AllInfo', JSON.stringify(AllInfo));
+    }
 
     onBeforeModal = () => {
         this.setState({
@@ -388,7 +467,7 @@ class InvoiceForm extends React.Component {
     closeModal = () => this.setState({isOpen: false});
     render() {
         return (
-            <Form onSubmit={(event) => {this.onBeforeModal(); this.openModal(event)}}>
+            <Form onSubmit={(event) => {this.checkIfNew(); this.onBeforeModal(); this.openModal(event)}}>
                 <Row>
                     <Col md={8} lg={9}>
                         <Card className="p-4 p-xl-5 my-3 my-xl-4">
@@ -422,33 +501,33 @@ class InvoiceForm extends React.Component {
                                 </Col>
                                 <Col>
                                     <Form.Label className="fw-bold">Sprzedawca:</Form.Label>
-                                    <Form.Control placeholder={"NIP"}                             value={this.state.billFromNip}                 type="text"  name="billFromNip"                 className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(FromInfo,      'number', 'billFromNip',                 'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(FromInfo,      'number', 'billFromNip',                 'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
-                                    <Form.Control placeholder={"Nazwa firmy sprzedawcy"} rows={3} value={this.state.billFrom}                    type="text"  name="billFrom"                    className="my-2" autoComplete="Name"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(FromInfo,      'text',   'billFrom',                    'billFromAddress',      "From"     )} onFocus={() => setTimeout(() => this.displayList(FromInfo,      'text',   'billFrom',                    'billFromAddress',      "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
-                                    <Form.Control placeholder={"Adres firmy sprzedawcy"}          value={this.state.billFromAddress}             type="text"  name="billFromAddress"             className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(FromInfo,      'text',   'billFromAddress',             'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(FromInfo,      'text',   'billFromAddress',             'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
-                                    <Form.Control placeholder={"Nr telefonu sprzedawcy"}          value={this.state.billFromPhone}               type="text"  name="billFromPhone"               className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(FromInfo,      'number', 'billFromPhone',               'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(FromInfo,      'number', 'billFromPhone',               'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Adres email sprzedawcy"}          value={this.state.billFromEmail}               type="email" name="billFromEmail"               className="my-2" autoComplete="Email"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(FromInfo,      'text',   'billFromEmail',               'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(FromInfo,      'text',   'billFromEmail',               'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billFromBillingAddress}      type="text"  name="billFromBillingAddress"      className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(FromInfo,      'number', 'billFromBillingAddress',      'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(FromInfo,      'number', 'billFromBillingAddress',      'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Bank"}                            value={this.state.billFromBank}                type="text"  name="billFromBank"                className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(FromInfo,      'text',   'billFromBank',                'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(FromInfo,      'text',   'billFromBank',                'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"NIP"}                             value={this.state.billFromNip}                 type="text"  name="billFromNip"                 className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[0],      'number', 'billFromNip',                 'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(AllInfo[0],      'number', 'billFromNip',                 'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
+                                    <Form.Control placeholder={"Nazwa firmy sprzedawcy"} rows={3} value={this.state.billFrom}                    type="text"  name="billFrom"                    className="my-2" autoComplete="Name"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[0],      'text',   'billFrom',                    'billFromAddress',      "From"     )} onFocus={() => setTimeout(() => this.displayList(AllInfo[0],      'text',   'billFrom',                    'billFromAddress',      "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
+                                    <Form.Control placeholder={"Adres firmy sprzedawcy"}          value={this.state.billFromAddress}             type="text"  name="billFromAddress"             className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[0],      'text',   'billFromAddress',             'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(AllInfo[0],      'text',   'billFromAddress',             'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
+                                    <Form.Control placeholder={"Nr telefonu sprzedawcy"}          value={this.state.billFromPhone}               type="text"  name="billFromPhone"               className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[0],      'number', 'billFromPhone',               'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(AllInfo[0],      'number', 'billFromPhone',               'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Adres email sprzedawcy"}          value={this.state.billFromEmail}               type="email" name="billFromEmail"               className="my-2" autoComplete="Email"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[0],      'text',   'billFromEmail',               'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(AllInfo[0],      'text',   'billFromEmail',               'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billFromBillingAddress}      type="text"  name="billFromBillingAddress"      className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[0],      'number', 'billFromBillingAddress',      'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(AllInfo[0],      'number', 'billFromBillingAddress',      'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Bank"}                            value={this.state.billFromBank}                type="text"  name="billFromBank"                className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[0],      'text',   'billFromBank',                'billFrom',             "From"     )} onFocus={() => setTimeout(() => this.displayList(AllInfo[0],      'text',   'billFromBank',                'billFrom',             "From"     ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
                                 </Col>
                                 <Col>
                                     <Form.Label className="fw-bold">Nabywca:</Form.Label>
-                                    <Form.Control placeholder={"NIP"}                             value={this.state.billToNip}                   type="text"  name="billToNip"                   className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(ToInfo,        'number', 'billToNip',                   'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(ToInfo,        'number', 'billToNip',                   'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
-                                    <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billTo}                      type="text"  name="billTo"                      className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(ToInfo,        'text',   'billTo',                      'billToAddress',        "To"       )} onFocus={() => setTimeout(() => this.displayList(ToInfo,        'text',   'billTo',                      'billToAddress',        "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
-                                    <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billToAddress}               type="text"  name="billToAddress"               className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(ToInfo,        'text',   'billToAddress',               'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(ToInfo,        'text',   'billToAddress',               'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
-                                    <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billToPhone}                 type="text"  name="billToPhone"                 className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(ToInfo,        'number', 'billToPhone',                 'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(ToInfo,        'number', 'billToPhone',                 'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billToEmail}                 type="email" name="billToEmail"                 className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(ToInfo,        'text',   'billToEmail',                 'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(ToInfo,        'text',   'billToEmail',                 'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billToBillingAddress}        type="text"  name="billToBillingAddress"        className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(ToInfo,        'number', 'billToBillingAddress',        'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(ToInfo,        'number', 'billToBillingAddress',        'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Bank"}                            value={this.state.billToBank}                  type="text"  name="billToBank"                  className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(ToInfo,        'text',   'billToBank',                  'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(ToInfo,        'text',   'billToBank',                  'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"NIP"}                             value={this.state.billToNip}                   type="text"  name="billToNip"                   className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[1],        'number', 'billToNip',                   'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(AllInfo[1],        'number', 'billToNip',                   'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
+                                    <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billTo}                      type="text"  name="billTo"                      className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[1],        'text',   'billTo',                      'billToAddress',        "To"       )} onFocus={() => setTimeout(() => this.displayList(AllInfo[1],        'text',   'billTo',                      'billToAddress',        "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
+                                    <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billToAddress}               type="text"  name="billToAddress"               className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[1],        'text',   'billToAddress',               'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(AllInfo[1],        'text',   'billToAddress',               'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} required="required"/>
+                                    <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billToPhone}                 type="text"  name="billToPhone"                 className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[1],        'number', 'billToPhone',                 'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(AllInfo[1],        'number', 'billToPhone',                 'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billToEmail}                 type="email" name="billToEmail"                 className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[1],        'text',   'billToEmail',                 'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(AllInfo[1],        'text',   'billToEmail',                 'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billToBillingAddress}        type="text"  name="billToBillingAddress"        className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[1],        'number', 'billToBillingAddress',        'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(AllInfo[1],        'number', 'billToBillingAddress',        'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Bank"}                            value={this.state.billToBank}                  type="text"  name="billToBank"                  className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[1],        'text',   'billToBank',                  'billTo',               "To"       )} onFocus={() => setTimeout(() => this.displayList(AllInfo[1],        'text',   'billToBank',                  'billTo',               "To"       ), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
                                 </Col>
                                 <Col>
                                     <Form.Label className="fw-bold">Odbiorca:</Form.Label>
-                                    <Form.Control placeholder={"NIP"}                             value={this.state.billRecipientNip}            type="text"  name="billRecipientNip"            className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(RecipientInfo, 'number', 'billRecipientNip',            'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(RecipientInfo, 'number', 'billRecipientNip',            'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billRecipient}               type="text"  name="billRecipient"               className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(RecipientInfo, 'text',   'billRecipient',               'billRecipientAddress', "Recipient")} onFocus={() => setTimeout(() => this.displayList(RecipientInfo, 'text',   'billRecipient',               'billRecipientAddress', "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billRecipientAddress}        type="text"  name="billRecipientAddress"        className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(RecipientInfo, 'text',   'billRecipientAddress',        'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(RecipientInfo, 'text',   'billRecipientAddress',        'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billRecipientPhone}          type="text"  name="billRecipientPhone"          className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(RecipientInfo, 'number', 'billRecipientPhone',          'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(RecipientInfo, 'number', 'billRecipientPhone',          'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billRecipientEmail}          type="email" name="billRecipientEmail"          className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(RecipientInfo, 'text',   'billRecipientEmail',          'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(RecipientInfo, 'text',   'billRecipientEmail',          'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billRecipientBillingAddress} type="text"  name="billRecipientBillingAddress" className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(RecipientInfo, 'number', 'billRecipientBillingAddress', 'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(RecipientInfo, 'number', 'billRecipientBillingAddress', 'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
-                                    <Form.Control placeholder={"Bank"}                            value={this.state.billRecipientBank}           type="text"  name="billRecipientBank"           className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(RecipientInfo, 'text',   'billRecipientBank',           'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(RecipientInfo, 'text',   'billRecipientBank',           'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"NIP"}                             value={this.state.billRecipientNip}            type="text"  name="billRecipientNip"            className="my-2" autoComplete="Nip"            onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[2], 'number', 'billRecipientNip',            'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(AllInfo[2], 'number', 'billRecipientNip',            'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Nazwa firmy nabywcy"} rows={3}    value={this.state.billRecipient}               type="text"  name="billRecipient"               className="my-2" autoComplete="name"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[2], 'text',   'billRecipient',               'billRecipientAddress', "Recipient")} onFocus={() => setTimeout(() => this.displayList(AllInfo[2], 'text',   'billRecipient',               'billRecipientAddress', "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Adres firmy nabywcy"}             value={this.state.billRecipientAddress}        type="text"  name="billRecipientAddress"        className="my-2" autoComplete="Address"        onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[2], 'text',   'billRecipientAddress',        'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(AllInfo[2], 'text',   'billRecipientAddress',        'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Nr telefonu nabywcy"}             value={this.state.billRecipientPhone}          type="text"  name="billRecipientPhone"          className="my-2" autoComplete="Phone"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[2], 'number', 'billRecipientPhone',          'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(AllInfo[2], 'number', 'billRecipientPhone',          'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Adres email nabywcy"}             value={this.state.billRecipientEmail}          type="email" name="billRecipientEmail"          className="my-2" autoComplete="email"          onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[2], 'text',   'billRecipientEmail',          'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(AllInfo[2], 'text',   'billRecipientEmail',          'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Adres rozliczeniowy"}             value={this.state.billRecipientBillingAddress} type="text"  name="billRecipientBillingAddress" className="my-2" autoComplete="BillingAddress" onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[2], 'number', 'billRecipientBillingAddress', 'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(AllInfo[2], 'number', 'billRecipientBillingAddress', 'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
+                                    <Form.Control placeholder={"Bank"}                            value={this.state.billRecipientBank}           type="text"  name="billRecipientBank"           className="my-2" autoComplete="Bank"           onChange={(event) => this.editField(event)} onKeyUp={() => this.displayList(AllInfo[2], 'text',   'billRecipientBank',           'billRecipient',        "Recipient")} onFocus={() => setTimeout(() => this.displayList(AllInfo[2], 'text',   'billRecipientBank',           'billRecipient',        "Recipient"), 0)} onBlur={() => {setTimeout(() => {if (document.activeElement.name !== undefined && document.activeElement.name.startsWith("bill")) this.removeElements(); else {setTimeout(() => {this.removeElements();}, 200);}}, 0);}} />
                                 </Col>
                             </Row>
                             <InvoiceItem onItemizedItemEdit={this.onItemizedItemEdit.bind(this)} onRowAdd={this.handleAddEvent.bind(this)} onRowDel={this.handleRowDel.bind(this)} currency={this.state.currency} items={this.state.items}/>
@@ -484,7 +563,7 @@ class InvoiceForm extends React.Component {
                             <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmount={this.state.taxAmount} taxAmountInd={this.state.taxAmountInd} discountAmount={this.state.discountAmount} discountAmountInd={this.state.discountAmountInd} total={this.state.total}/>
                             <Form.Group className="mb-3">
                                 <Form.Label className="fw-bold">Waluta:</Form.Label>
-                                <Form.Select onChange={(event) => {this.onCurrencyChange({currency: event.target.value}); this.handleCalculateTotal()}} className="btn btn-light my-1" aria-label="Change Currency">
+                                <Form.Select onChange={(event) => {this.onCurrencyChange({currency: event.target["value"]}); this.handleCalculateTotal()}} className="btn btn-light my-1" aria-label="Change Currency">
                                     <option value="zł">PLN (Polski Złoty)</option>
                                     <option value="$">USD (United States Dollar)</option>
                                     <option value="£">GBP (British Pound Sterling)</option>
@@ -497,7 +576,7 @@ class InvoiceForm extends React.Component {
                             </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label className="fw-bold">Forma płatności:</Form.Label>
-                                <Form.Select onChange={event => this.onPaymentMethodChange({paymentMethod: event.target.value})} className="btn btn-light my-1" aria-label="Change Payment Method" defaultValue={"Karta płatnicza"}>
+                                <Form.Select onChange={event => this.onPaymentMethodChange({paymentMethod: event.target["value"]})} className="btn btn-light my-1" aria-label="Change Payment Method" defaultValue={"Karta płatnicza"}>
                                     <option value="Czek">Czek (0 dni; 100%)</option>
                                     <option value="Częściowy kredyt 14 dni">Częściowy kredyt 14 dni (14 dni; 50%)</option>
                                     <option value="Częściowy kredyt 7 dni">Częściowy kredyt 7 dni (7 dni; 50%)</option>
@@ -516,3 +595,6 @@ class InvoiceForm extends React.Component {
 }
 
 export default InvoiceForm;
+/*TODO: Invoice number needs to go up with every next invoice.
+   there must then be a way to export and import prompt data with single file
+   table in invoice needs to remove columns that are empty and scale properly*/
