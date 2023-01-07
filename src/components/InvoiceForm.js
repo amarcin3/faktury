@@ -451,6 +451,68 @@ class InvoiceForm extends React.Component {
         localStorage.setItem('AllInfo', JSON.stringify(AllInfo));
     }
 
+    download(filename, text) {
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    import() {
+        /*import text file*/
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.click();
+        input.onchange = e => {
+            /*check if file is text*/
+            const file = e.target.files[0];
+            if (file.type === 'text/plain') {
+                /*setting up the reader*/
+                const reader = new FileReader();
+                reader.readAsText(file,'UTF-8');
+                /* here we tell the reader what to do when it's done reading*/
+                reader.onload = readerEvent => {
+                    let content = readerEvent.target.result; // this is the content!
+                    console.log(content);
+                    content = JSON.parse(content.toString());
+
+                    if (localStorage.getItem('AllInfo') !== null) {
+                        content[0] = content[0].concat(JSON.parse(localStorage.getItem('AllInfo'))[0]).reduce((acc, item) => {
+                            if (!acc.some(i => i.billFromNip === item.billFromNip && i.billFrom === item.billFrom && i.billFromAddress === item.billFromAddress && i.billFromPhone === item.billFromPhone && i.billFromEmail === item.billFromEmail && i.billFromBillingAddress === item.billFromBillingAddress && i.billFromBank === item.billFromBank)) {
+                                acc.push(item);
+                            }
+                            return acc;
+                        }, []);
+                        content[1] = content[1].concat(JSON.parse(localStorage.getItem('AllInfo'))[1]).reduce((acc, item) => {
+                            if (!acc.some(i => i.billToNip === item.billToNip && i.billTo === item.billTo && i.billToAddress === item.billToAddress && i.billToPhone === item.billToPhone && i.billToEmail === item.billToEmail && i.billToBillingAddress === item.billToBillingAddress && i.billToBank === item.billToBank)) {
+                                acc.push(item);
+                            }
+                            return acc;
+                        }, []);
+                        content[2] = content[2].concat(JSON.parse(localStorage.getItem('AllInfo'))[2]).reduce((acc, item) => {
+                            if (!acc.some(i => i.billRecipientNip === item.billRecipientNip && i.billRecipient === item.billRecipient && i.billRecipientAddress === item.billRecipientAddress && i.billRecipientPhone === item.billRecipientPhone && i.billRecipientEmail === item.billRecipientEmail && i.billRecipientBillingAddress === item.billRecipientBillingAddress && i.billRecipientBank === item.billRecipientBank)) {
+                                acc.push(item);
+                            }
+                            return acc;
+                        }, []);
+                    }
+                    localStorage.setItem('AllInfo', JSON.stringify(content));
+                    console.log(JSON.parse(localStorage.getItem('AllInfo')));
+                    console.log(AllInfo);
+                    AllInfo[0] = JSON.parse(localStorage.getItem('AllInfo'))[0];
+                    AllInfo[1] = JSON.parse(localStorage.getItem('AllInfo'))[1];
+                    AllInfo[2] = JSON.parse(localStorage.getItem('AllInfo'))[2];
+                }
+            }
+        }
+    }
+
     onBeforeModal = () => {
         this.setState({
             dueDateF: (this.state.dueDate).substring(8,10) + '.' + (this.state.dueDate).substring(5,7) + '.' + (this.state.dueDate).substring(0,4),
@@ -586,6 +648,9 @@ class InvoiceForm extends React.Component {
                                     <option value="Kredyt 7 dni">Kredyt 7 dni (7 dni; 0%)</option>s
                                 </Form.Select>
                             </Form.Group>
+                            <hr className="my-4"/>
+                            <Button variant="outline-secondary" type="button" className="d-block w-100 mb-3" onClick={() => this.download('Export ' + format + '.txt', JSON.stringify(AllInfo))}>Eksportuj dane</Button>
+                            <Button variant="outline-secondary" type="button" className="d-block w-100" onClick={() => this.import()}>Importuj dane</Button>
                         </div>
                     </Col>
                 </Row>
@@ -596,5 +661,4 @@ class InvoiceForm extends React.Component {
 
 export default InvoiceForm;
 /*TODO: Invoice number needs to go up with every next invoice.
-   there must then be a way to export and import prompt data with single file
    table in invoice needs to remove columns that are empty and scale properly*/
