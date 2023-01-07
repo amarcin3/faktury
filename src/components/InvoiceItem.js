@@ -17,25 +17,27 @@ class InvoiceItem extends React.Component {
         });
         return (
             <div>
-                <Table>
-                    <thead>
-                        <tr>
-                            <th>Lp.</th>
-                            <th>Nazwa/opis produktu</th>
-                            <th>Ilość</th>
-                            <th>PKWiU</th>
-                            <th>Rabat [%]</th>
-                            <th>Cena jednostkowa [zł]</th>
-                            <th>Wartość netto [zł]</th>
-                            <th>Podatek VAT [%]</th>
-                            <th>Wartość brutto [zł]</th>
-                            <th className="text-center">Usuń</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {itemTable}
-                    </tbody>
-                </Table>
+                <div className="table-responsive mb-3">
+                    <Table className="table">
+                        <thead>
+                            <tr>
+                                <th>Lp.</th>
+                                <th>Nazwa/opis produktu</th>
+                                <th>Ilość</th>
+                                <th>PKWiU</th>
+                                <th>Rabat [%]</th>
+                                <th>Cena jednostkowa [zł]</th>
+                                <th>Wartość netto [zł]</th>
+                                <th>Podatek VAT [%]</th>
+                                <th>Wartość brutto [zł]</th>
+                                <th className="text-center">Usuń</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {itemTable}
+                        </tbody>
+                    </Table>
+                </div>
                 <Button className="fw-bold" onClick={(event) => {this.props.onRowAdd(); this.props.onItemizedItemEdit(event)}}>Dodaj produkt</Button>
             </div>
         );
