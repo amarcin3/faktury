@@ -164,25 +164,165 @@ function PreparePersonInfoBody(props, who){
     }
     return {0: data};
 }
+function removeEmpty(text){
+    for(let j = 0; j < text.length; j++){
+        if(text[j] === " "){
+            text = text.slice(1);
+            j--;
+        } else{
+            break;
+        }
+    }
+    if(text !== ""){
+        return text;
+    }
+    return null;
+}
 function Item(Number, Name, Description, Quantity, PKWIU, Discount, NetPrice, NetValue, Tax, GrossValue){
     this.Number = Number;
     this.Name = Name;
-    this.Description = Description;
+    if (Description !== null) this.Description = Description;
     this.Quantity = Quantity;
-    this.PKWIU = PKWIU;
-    this.Discount = Discount;
+    if (PKWIU !== null) this.PKWIU = PKWIU;
+    if (Discount !== 0) this.Discount = Discount + "%";
     this.NetPrice = NetPrice;
     this.NetValue = NetValue;
     this.Tax = Tax;
-    this.GrossValue = GrossValue;
-
+    this.GrossValue = GrossValue
 }
 function PrepareItemBody(props){
     let data = [];
     props.items.map((item) => {
-        return data.push(new Item(item.number, item.name, item.description, item.quantity, item.PKWiU, item.discount + "%", addZerosModal(item.netPrice) + props.currency, addZerosModal(item.netValue) + props.currency, item.tax + "%", addZerosModal(item.grossValue) + props.currency))
+        return data.push(new Item(item.number, item.name, removeEmpty(item.description), item.quantity, removeEmpty(item.PKWiU), item.discount, addZerosModal(item.netPrice) + props.currency, addZerosModal(item.netValue) + props.currency, item.tax + "%", addZerosModal(item.grossValue) + props.currency))
     })
     return data;
+}
+function PrepareItemsTableHead(data){
+    let head = {};
+    let strings = []
+    for(let i = 0; i < data.length; i++){
+        strings = strings.concat(Object.keys(data[i]));
+    }
+    strings = strings.filter((item, index) => strings.indexOf(item) === index);
+    let keys = ["Number", "Name", "Description", "Quantity", "PKWIU", "Discount", "NetPrice", "NetValue", "Tax", "GrossValue"];
+    let values = ["Lp.", "Nazwa", "Opis", "Ilość [szt]", "PKWiU", "Rabat", "Cena jedn. netto", "Wartość netto", "VAT", "Wartość brutto"];
+    for(let i = 0; i < keys.length; i++){
+        if(strings.includes(keys[i])){
+            head[keys[i]] = values[i];
+        }
+    }
+
+    let dimensions = [
+        {
+            Number: {cellWidth: 6},
+            Name: {cellWidth: 44, halign: 'left'},
+            Description: {cellWidth: 30, halign: 'left'},
+            Quantity: {cellWidth: 10},
+            PKWIU: {cellWidth: 12},
+            Discount: {cellWidth: 11},
+            NetPrice: {cellWidth: 25, halign: 'right'},
+            NetValue: {cellWidth: 25, halign: 'right'},
+            Tax: {cellWidth: 10},
+            GrossValue: {cellWidth: 25, halign: 'right'}
+        },
+        {
+            Number: {cellWidth: 10},
+            Name: {cellWidth: 45, halign: 'left'},
+            Quantity: {cellWidth: 17},
+            PKWIU: {cellWidth: 12},
+            Discount: {cellWidth: 12},
+            NetPrice: {cellWidth: 30, halign: 'right'},
+            NetValue: {cellWidth: 30, halign: 'right'},
+            Tax: {cellWidth: 12},
+            GrossValue: {cellWidth: 30, halign: 'right'}
+        },
+        {
+            Number: {cellWidth: 11},
+            Name: {cellWidth: 51, halign: 'left'},
+            Quantity: {cellWidth: 17},
+            Discount: {cellWidth: 13},
+            NetPrice: {cellWidth: 31, halign: 'right'},
+            NetValue: {cellWidth: 31, halign: 'right'},
+            Tax: {cellWidth: 13},
+            GrossValue: {cellWidth: 31, halign: 'right'}
+        },
+        {
+            Number: {cellWidth: 11},
+            Name: {cellWidth: 51, halign: 'left'},
+            Quantity: {cellWidth: 17},
+            PKWIU: {cellWidth: 13},
+            NetPrice: {cellWidth: 31, halign: 'right'},
+            NetValue: {cellWidth: 31, halign: 'right'},
+            Tax: {cellWidth: 13},
+            GrossValue: {cellWidth: 31, halign: 'right'}
+        },
+        {
+            Number: {cellWidth: 11},
+            Name: {cellWidth: 64, halign: 'left'},
+            Quantity: {cellWidth: 17},
+            NetPrice: {cellWidth: 31, halign: 'right'},
+            NetValue: {cellWidth: 31, halign: 'right'},
+            Tax: {cellWidth: 13},
+            GrossValue: {cellWidth: 31, halign: 'right'}
+        },
+        {
+            Number: {cellWidth: 10},
+            Name: {cellWidth: 44, halign: 'left'},
+            Description: {cellWidth: 30, halign: 'left'},
+            Quantity: {cellWidth: 17},
+            Discount: {cellWidth: 11},
+            NetPrice: {cellWidth: 25, halign: 'right'},
+            NetValue: {cellWidth: 25, halign: 'right'},
+            Tax: {cellWidth: 11},
+            GrossValue: {cellWidth: 25, halign: 'right'}
+        },
+        {
+            Number: {cellWidth: 10},
+            Name: {cellWidth: 46, halign: 'left'},
+            Description: {cellWidth: 30, halign: 'left'},
+            Quantity: {cellWidth: 17},
+            NetPrice: {cellWidth: 28, halign: 'right'},
+            NetValue: {cellWidth: 28, halign: 'right'},
+            Tax: {cellWidth: 11},
+            GrossValue: {cellWidth: 28, halign: 'right'}
+        },
+        {
+            Number: {cellWidth: 10},
+            Name: {cellWidth: 44, halign: 'left'},
+            Description: {cellWidth: 30, halign: 'left'},
+            Quantity: {cellWidth: 17},
+            PKWIU: {cellWidth: 12},
+            NetPrice: {cellWidth: 25, halign: 'right'},
+            NetValue: {cellWidth: 25, halign: 'right'},
+            Tax: {cellWidth: 10},
+            GrossValue: {cellWidth: 25, halign: 'right'}
+        },
+    ]
+    let dimension
+
+    if(strings.includes("Description")){
+        if (strings.includes("PKWIU")){
+            if(strings.includes("Discount")) dimension = dimensions[0]; // ma opis, pkwiu, rabat
+            else dimension = dimensions[7]; // ma opis, pkwiu, nie ma rabatu
+        }
+        else{
+            if (strings.includes("Discount")) dimension = dimensions[5]; // ma opis, nie ma pkwiu, ma rabat
+            else dimension = dimensions[6]; // ma opis, nie ma pkwiu, nie ma rabatu
+        }
+    }
+    else{
+        if (strings.includes("PKWIU")){
+            if(strings.includes("Discount")) dimension = dimensions[1]; // nie ma opisu, ma pkwiu, ma rabat
+            else dimension = dimensions[3]; // nie ma opisu, ma pkwiu, nie ma rabatu
+        }
+        else{
+            if (strings.includes("Discount")) dimension = dimensions[2]; // nie ma opisu, nie ma pkwiu, ma rabat
+            else dimension = dimensions[4]; // nie ma opisu, nie ma pkwiu, nie ma rabatu
+        }
+    }
+
+
+    return [[head], dimension];
 }
 function PrepareTaxTableBody(props){
     let percent = [];
@@ -232,7 +372,6 @@ function PrepareTaxTableBody(props){
     return list;
 }
 function PrepareSummaryBody(props){
-    /*paymentMethod, dueDate, Already paid, to pay*/
     let data = [];
     data.push({0: "Sposób płatności: " + props.info.paymentMethod});
     data.push({0: "Termin płatności: " + props.info.dueDateF});
@@ -323,9 +462,9 @@ function AddPersonInfoTable(doc, head, body, margin, startY=30) {
         },
     })
 }
-function AddItemTable(doc, body, lastY){
+function AddItemTable(doc, head, body, lastY){
     doc.autoTable({
-        head: [{ Number: 'Lp.', Name: 'Nazwa', Description: 'Opis', Quantity: 'Ilość [szt]', PKWIU: 'PKWiU', Discount: 'Rabat', NetPrice: 'Cena jedn. netto', NetValue: 'Wartość netto', Tax: 'VAT', GrossValue: 'Wartość brutto'}],
+        head: head[0],
         body: body,
         didDrawPage: function () {
             let totalPagesExp = '{total_pages_count_string}';
@@ -353,18 +492,7 @@ function AddItemTable(doc, body, lastY){
         headStyles: {
             fillColor: [222, 222, 222],
         },
-        columnStyles: {
-            Number: {cellWidth: 6, border: 1},
-            Name: {cellWidth: 44, halign: 'left'},
-            Description: {cellWidth: 30, halign: 'left'},
-            Quantity: {cellWidth: 10},
-            PKWIU: {cellWidth: 12},
-            Discount: {cellWidth: 11},
-            NetPrice: {cellWidth: 25, halign: 'right'},
-            NetValue: {cellWidth: 25, halign: 'right'},
-            Tax: {cellWidth: 10},
-            GrossValue: {cellWidth: 25, halign: 'right'},
-        },
+        columnStyles: head[1],
         alternateRowStyles: {
             fillColor : [255, 255, 255]
         },
@@ -505,7 +633,7 @@ function AddAdditionalInfoTable(doc, body, lastY){
 
     })
 }
-function GenerateDocument(PlaceAndDateTableBody, PersonInfoTableBody1, PersonInfoTableBody2, PersonInfoTableBody3, InvoiceNumber, ItemTableBody, TaxTableBody, SummaryTableBody, FinalTableHead, FinalTableContent, AdditionalInfoTableBody) {
+function GenerateDocument(PlaceAndDateTableBody, PersonInfoTableBody1, PersonInfoTableBody2, PersonInfoTableBody3, InvoiceNumber, ItemTableHead, ItemTableBody, TaxTableBody, SummaryTableBody, FinalTableHead, FinalTableContent, AdditionalInfoTableBody) {
     let doc = new jsPDF();
     let totalPagesExp = '{total_pages_count_string}';
     doc.setFontSize(20);
@@ -559,7 +687,7 @@ function GenerateDocument(PlaceAndDateTableBody, PersonInfoTableBody1, PersonInf
     doc.text('Faktura VAT nr ' + InvoiceNumber, doc.internal.pageSize.width / 2, lastY + 10, {align: 'center'});
     doc.setFont("Roboto", "normal");
 
-    AddItemTable(doc, ItemTableBody, lastY + 20);
+    AddItemTable(doc, ItemTableHead, ItemTableBody, lastY + 20);
     AddTaxTable(doc, TaxTableBody);
     lastY = doc.lastAutoTable.finalY;
     AddSummaryTable(doc, SummaryTableBody, lastY + 4);
@@ -617,7 +745,7 @@ function GenerateDocument(PlaceAndDateTableBody, PersonInfoTableBody1, PersonInf
     return doc
 }
 function DownloadInvoice(props){
-    let doc = GenerateDocument(PreparePlaceAndDateBody(props),PreparePersonInfoBody(props, "from"), PreparePersonInfoBody(props, "to"), PreparePersonInfoBody(props, "recipient"),props.info.invoiceNumber, PrepareItemBody(props), PrepareTaxTableBody(props), PrepareSummaryBody(props), PrepareFinalTableHead(props), PrepareFinalTableContent(props), PrepareAdditionalInfoBody(props));
+    let doc = GenerateDocument(PreparePlaceAndDateBody(props),PreparePersonInfoBody(props, "from"), PreparePersonInfoBody(props, "to"), PreparePersonInfoBody(props, "recipient"),props.info.invoiceNumber, PrepareItemsTableHead(PrepareItemBody(props)), PrepareItemBody(props), PrepareTaxTableBody(props), PrepareSummaryBody(props), PrepareFinalTableHead(props), PrepareFinalTableContent(props), PrepareAdditionalInfoBody(props));
     doc.setProperties({
         title: 'Example: ',
         subject: 'invoice'
@@ -625,7 +753,7 @@ function DownloadInvoice(props){
     doc.save('table.pdf');
 }
 function DisplayInvoice(props){
-    let doc = GenerateDocument(PreparePlaceAndDateBody(props),PreparePersonInfoBody(props, "from"), PreparePersonInfoBody(props, "to"), PreparePersonInfoBody(props, "recipient"),props.info.invoiceNumber, PrepareItemBody(props), PrepareTaxTableBody(props), PrepareSummaryBody(props), PrepareFinalTableHead(props), PrepareFinalTableContent(props), PrepareAdditionalInfoBody(props));
+    let doc = GenerateDocument(PreparePlaceAndDateBody(props),PreparePersonInfoBody(props, "from"), PreparePersonInfoBody(props, "to"), PreparePersonInfoBody(props, "recipient"),props.info.invoiceNumber, PrepareItemsTableHead(PrepareItemBody(props)), PrepareItemBody(props), PrepareTaxTableBody(props), PrepareSummaryBody(props), PrepareFinalTableHead(props), PrepareFinalTableContent(props), PrepareAdditionalInfoBody(props));
     doc.setProperties({
         title: 'Example: ',
         subject: 'invoice'
@@ -710,36 +838,38 @@ class InvoiceModal extends React.Component {
                                 </Col>
                                 {recipient(this.props.info)}
                             </Row>
-                            <Table className="mb-0">
-                                <thead>
-                                <tr className="text-center" >
-                                    <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Lp.</th>
-                                    <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Nazwa/opis produktu</th>
-                                    <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Ilość</th>
-                                    <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>PKWiU</th>
-                                    <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Cena jednostkowa [zł]</th>
-                                    <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Wartość netto [zł]</th>
-                                    <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Podatek VAT [%]</th>
-                                    <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Wartość brutto [zł]</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {this.props.items.map((item, i) => {
-                                    return (
-                                        <tr id={i} key={i}>
-                                            <td className="text-center" style={{width: '0px'}}>{item.number}</td>
-                                            <td className="text-center text-break">{item.name}{description(item.description, item.hasDescription)}</td>
-                                            <td className="text-center" style={{width: '0px'}}> {item.quantity} </td>
-                                            <td className="text-center" style={{width: '0px'}}> {item.PKWiU} </td>
-                                            <td className="text-center" style={{width: '0px'}}>{addZeros(item.netPrice)}{this.props.currency}</td>
-                                            <td className="text-center" style={{width: '0px'}}> {addZeros(item.netValue)}{this.props.currency}</td>
-                                            <td className="text-center" style={{width: '0px'}}> {item.tax}%</td>
-                                            <td className="text-center" style={{width: '0px'}}> {addZeros(item.grossValue)}{this.props.currency}</td>
-                                        </tr>
-                                    );
-                                })}
-                                </tbody>
+                            <div className="table-responsive">
+                                <Table className="table mb-3">
+                                    <thead>
+                                    <tr className="text-center" >
+                                        <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Lp.</th>
+                                        <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Nazwa/opis produktu</th>
+                                        <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Ilość</th>
+                                        <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>PKWiU</th>
+                                        <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Cena jednostkowa [zł]</th>
+                                        <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Wartość netto [zł]</th>
+                                        <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Podatek VAT [%]</th>
+                                        <th style={{ paddingLeft:'5px', paddingRight: '5px'}}>Wartość brutto [zł]</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {this.props.items.map((item, i) => {
+                                        return (
+                                            <tr id={i} key={i}>
+                                                <td className="text-center" style={{width: '0px'}}>{item.number}</td>
+                                                <td className="text-center text-break">{item.name}{description(item.description, item.hasDescription)}</td>
+                                                <td className="text-center" style={{width: '0px'}}> {item.quantity} </td>
+                                                <td className="text-center" style={{width: '0px'}}> {item.PKWiU} </td>
+                                                <td className="text-center" style={{width: '0px'}}>{addZeros(item.netPrice)}{this.props.currency}</td>
+                                                <td className="text-center" style={{width: '0px'}}> {addZeros(item.netValue)}{this.props.currency}</td>
+                                                <td className="text-center" style={{width: '0px'}}> {item.tax}%</td>
+                                                <td className="text-center" style={{width: '0px'}}> {addZeros(item.grossValue)}{this.props.currency}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                    </tbody>
                             </Table>
+                            </div>
                             <Table>
                                 <tbody>
                                 <tr>
