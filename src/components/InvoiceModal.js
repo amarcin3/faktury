@@ -762,7 +762,6 @@ function DisplayInvoice(props){
     window.open(doc.output('bloburl'))
 }
 
-
 function description(description, hasDescription) {
     if(hasDescription === true) {
         return ' - ' + description;

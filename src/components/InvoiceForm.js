@@ -11,6 +11,8 @@ import InvoiceItem from './InvoiceItem';
 import InvoiceModal from './InvoiceModal';
 
 import AllInfo from './AllInfo.json';
+import Invoices1 from './Invoices.json';
+let Invoices = Invoices1;
 
 if (localStorage.getItem('AllInfo') !== null) {
     AllInfo[0] = AllInfo[0].concat(JSON.parse(localStorage.getItem('AllInfo'))[0]).reduce((acc, item) => {
@@ -31,8 +33,26 @@ if (localStorage.getItem('AllInfo') !== null) {
         }
         return acc;
     }, []);
+
+    if (JSON.parse(localStorage.getItem('AllInfo')).length > 3) AllInfo[3].lastInvoiceNumber = JSON.parse(localStorage.getItem('AllInfo'))[3].lastInvoiceNumber;
 }
+
 localStorage.setItem('AllInfo', JSON.stringify(AllInfo));
+
+    if (localStorage.getItem('Invoices') !== null) {
+        Invoices = Invoices.concat(JSON.parse(localStorage.getItem('Invoices'))).reduce((acc, item) => {
+            if (!acc.some(i => i.invoiceNumber === item.invoiceNumber)) {
+                acc.push(item);
+            }
+            else if (acc.some(i => i.invoiceNumber === item.invoiceNumber && i.dateModified < item.dateModified)){
+                acc = acc.filter(i => i.invoiceNumber !== item.invoiceNumber);
+                acc.push(item);
+            }
+            return acc;
+        }, []);
+    }
+    localStorage.setItem('Invoices', JSON.stringify(Invoices));
+
 
 const dt = new Date();
 let mm = dt.getMonth() + 1;
@@ -42,15 +62,15 @@ if (dd < 10) dd = '0' + dd;
 const yyyy = dt.getFullYear();
 const format = yyyy + '-' + mm + '-' + dd;
 
+
 class InvoiceForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             isOpen: false,
             currency: 'zł',
-            paymentMethod: 'Karta płatnicza',
-            currentDate: '',
-            invoiceNumber: '1',
+            paymentMethod: 'Gotówka',
+            invoiceNumber: 'FS ' + (JSON.parse(localStorage.getItem('AllInfo'))[3].lastInvoiceNumber+1) + '/' + yyyy,
             dateOfIssue: format,
             dueDate: format,
             dateOfIssueF: '',
@@ -121,7 +141,7 @@ class InvoiceForm extends React.Component {
         this.setState(this.state.items)
     };
     handleAddEvent() {
-        let id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
+        let id = Date.now().toString();
         let number = this.state.items.length + 1;
         let items = {
             id: id,
@@ -450,6 +470,78 @@ class InvoiceForm extends React.Component {
         }
         localStorage.setItem('AllInfo', JSON.stringify(AllInfo));
     }
+    makeInvoice = () => {
+        return {
+            currency: this.state.currency,
+            paymentMethod: this.state.paymentMethod,
+            invoiceNumber: this.state.invoiceNumber,
+            dateOfIssue: this.state.dateOfIssue,
+            dueDate: this.state.dueDate,
+            placeOfIssue: this.state.placeOfIssue,
+
+            billFromNip: this.state.billFromNip,
+            billFrom: this.state.billFrom,
+            billFromAddress: this.state.billFromAddress,
+            billFromPhone: this.state.billFromPhone,
+            billFromEmail: this.state.billFromEmail,
+            billFromBillingAddress: this.state.billFromBillingAddress,
+            billFromBank: this.state.billFromBank,
+
+            billToNip: this.state.billToNip,
+            billTo: this.state.billTo,
+            billToAddress: this.state.billToAddress,
+            billToPhone: this.state.billToPhone,
+            billToEmail: this.state.billToEmail,
+            billToBillingAddress: this.state.billToBillingAddress,
+            billToBank: this.state.billToBank,
+
+            billRecipientNip: this.state.billRecipientNip,
+            billRecipient: this.state.billRecipient,
+            billRecipientAddress: this.state.billRecipientAddress,
+            billRecipientPhone: this.state.billRecipientPhone,
+            billRecipientEmail: this.state.billRecipientEmail,
+            billRecipientBillingAddress: this.state.billRecipientBillingAddress,
+            billRecipientBank: this.state.billRecipientBank,
+
+            notes: this.state.notes,
+            dateModified: Date.now().toString(),
+
+            items: this.state.items,
+        };
+    }
+
+    saveInvoice = (AllInfo) => {
+        for(let i = 0; i < Invoices.length; i++){
+            if(Invoices[i].invoiceNumber === this.state.invoiceNumber){
+
+                if (window.confirm("Faktura z tym numerem już istnieje. Chcesz ją nadpisać?")){
+                    Invoices[i] = this.makeInvoice()
+                    localStorage.setItem('Invoices', JSON.stringify(Invoices));
+                    AllInfo[3].lastInvoiceNumber = parseInt(this.state.invoiceNumber.split("/")[0].split(" ")[1]);
+                    localStorage.setItem('AllInfo', JSON.stringify(AllInfo));
+                    console.log("Invoice overwritten");
+                }
+                else {
+                    setTimeout(() => {
+                        this.setState({isOpen: false})
+                    }, 10);
+                }
+                break;
+            }
+            else if (i === Invoices.length - 1){
+
+                Invoices.push(this.makeInvoice());
+                localStorage.setItem('Invoices', JSON.stringify(Invoices));
+
+                AllInfo[3].lastInvoiceNumber = parseInt(this.state.invoiceNumber.split("/")[0].split(" ")[1]);
+                localStorage.setItem('AllInfo', JSON.stringify(AllInfo));
+                console.log("Invoice saved");
+                break;
+            }
+        }
+
+
+    }
 
     download(filename, text) {
         const element = document.createElement('a');
@@ -463,22 +555,17 @@ class InvoiceForm extends React.Component {
 
         document.body.removeChild(element);
     }
-
     import() {
-        /*import text file*/
         const input = document.createElement('input');
         input.type = 'file';
         input.click();
         input.onchange = e => {
-            /*check if file is text*/
             const file = e.target.files[0];
             if (file.type === 'text/plain') {
-                /*setting up the reader*/
                 const reader = new FileReader();
                 reader.readAsText(file,'UTF-8');
-                /* here we tell the reader what to do when it's done reading*/
                 reader.onload = readerEvent => {
-                    let content = readerEvent.target.result; // this is the content!
+                    let content = readerEvent.target.result;
                     console.log(content);
                     content = JSON.parse(content.toString());
 
@@ -501,13 +588,47 @@ class InvoiceForm extends React.Component {
                             }
                             return acc;
                         }, []);
+                        AllInfo[3].lastInvoiceNumber = Math.max(AllInfo[3].lastInvoiceNumber, content[3].lastInvoiceNumber);
                     }
                     localStorage.setItem('AllInfo', JSON.stringify(content));
                     console.log(JSON.parse(localStorage.getItem('AllInfo')));
-                    console.log(AllInfo);
                     AllInfo[0] = JSON.parse(localStorage.getItem('AllInfo'))[0];
                     AllInfo[1] = JSON.parse(localStorage.getItem('AllInfo'))[1];
                     AllInfo[2] = JSON.parse(localStorage.getItem('AllInfo'))[2];
+                    AllInfo[3] = JSON.parse(localStorage.getItem('AllInfo'))[3];
+                }
+            }
+        }
+    }
+    importInvoices() {
+        console.log(Invoices);
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.click();
+        input.onchange = e => {
+            const file = e.target.files[0];
+            if (file.type === 'text/plain') {
+                const reader = new FileReader();
+                reader.readAsText(file,'UTF-8');
+                reader.onload = readerEvent => {
+                    let content = readerEvent.target.result;
+                    content = JSON.parse(content.toString());
+
+                    if (localStorage.getItem('Invoices') !== null) {
+                        content = content.concat(JSON.parse(localStorage.getItem('Invoices'))).reduce((acc, item) => {
+                            if (!acc.some(i => i.invoiceNumber === item.invoiceNumber)) {
+                                acc.push(item);
+                            }
+                            else if (acc.some(i => i.invoiceNumber === item.invoiceNumber && i.dateModified < item.dateModified)){
+                                acc = acc.filter(i => i.invoiceNumber !== item.invoiceNumber);
+                                acc.push(item);
+                            }
+                            return acc;
+                        }, []);
+                    }
+                    Invoices = content;
+                    localStorage.setItem('Invoices', JSON.stringify(content));
+
                 }
             }
         }
@@ -529,7 +650,7 @@ class InvoiceForm extends React.Component {
     closeModal = () => this.setState({isOpen: false});
     render() {
         return (
-            <Form onSubmit={(event) => {this.checkIfNew(); this.onBeforeModal(); this.openModal(event)}}>
+            <Form onSubmit={(event) => {this.checkIfNew(); this.onBeforeModal(); this.saveInvoice(AllInfo); this.openModal(event)}}>
                 <Row>
                     <Col md={8} lg={9}>
                         <Card className="p-4 p-xl-5 my-3 my-xl-4">
@@ -550,10 +671,10 @@ class InvoiceForm extends React.Component {
                                         <Form.Control type="text" value={this.state.placeOfIssue} name={"placeOfIssue"} onChange={(event) => this.editField(event)} style={{maxWidth: '150px'}} required="required"/>
                                     </div>
                                 </Col>
-                                <Col md={5}>
-                                    <div className="d-flex flex-row align-items-center justify-content-end mb-2">
+                                 <Col md={5}>
+                                    <div className="d-flex flex-row align-items-center justify-content-md-end mb-2">
                                         <span className="fw-bold">Numer&nbsp;faktury:&nbsp;</span>
-                                        <Form.Control type="text" value={this.state.invoiceNumber} name={"invoiceNumber"} onChange={(event) => this.editField(event)} min="1" style={{maxWidth: '70px'}} required="required"/>
+                                        <Form.Control type="text" value={this.state.invoiceNumber} name={"invoiceNumber"} onChange={(event) => this.editField(event)} min="1" style={{maxWidth: '150px'}} required="required"/>
                                     </div>
                                 </Col>
                             </Row>
@@ -623,7 +744,7 @@ class InvoiceForm extends React.Component {
                     </Col>
                     <Col md={4} lg={3}>
                         <div className="sticky-top pt-md-3 pt-xl-4">
-                            <Button variant="primary" type="submit" className="d-block w-100">Sprawdź poprawność faktury</Button>
+                            <Button variant="primary" type="submit" className="d-block w-100">Sprawdź poprawność faktury, kliknięcie zapisze nowe dane i zatwierdzi numer faktury</Button>
                             <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmount={this.state.taxAmount} taxAmountInd={this.state.taxAmountInd} discountAmount={this.state.discountAmount} discountAmountInd={this.state.discountAmountInd} total={this.state.total}/>
                             <Form.Group className="mb-3">
                                 <Form.Label className="fw-bold">Waluta:</Form.Label>
@@ -641,15 +762,16 @@ class InvoiceForm extends React.Component {
                             <Form.Group className="mb-3">
                                 <Form.Label className="fw-bold">Forma płatności:</Form.Label>
                                 <Form.Select onChange={event => this.onPaymentMethodChange({paymentMethod: event.target["value"]})} className="btn btn-light my-1" aria-label="Change Payment Method" defaultValue={"Karta płatnicza"}>
-                                    <option value="Czek">Czek (0 dni; 100%)</option>
-                                    <option value="Częściowy kredyt 14 dni">Częściowy kredyt 14 dni (14 dni; 50%)</option>
-                                    <option value="Częściowy kredyt 7 dni">Częściowy kredyt 7 dni (7 dni; 50%)</option>
-                                    <option value="Gotówka">Gotówka (0 dni; 100%)</option>
-                                    <option value="Karta płatnicza">Karta płatnicza (0 dni; 100%)</option>
-                                    <option value="Kredyt 14 dni">Kredyt 14 dni (14 dni; 0%)</option>
-                                    <option value="Kredyt 7 dni">Kredyt 7 dni (7 dni; 0%)</option>s
+                                    <option value="Gotówka">Gotówka</option>
+                                    <option value="Karta płatnicza">Karta płatnicza</option>
+                                    <option value="Przelew">Przelew</option>
                                 </Form.Select>
                             </Form.Group>
+                            <hr className="my-4"/>
+                            <Button variant="outline-primary" type="button" className="d-block w-100 mb-3" onClick={() => this.import()}>Zobacz faktury</Button>
+                            <hr className="my-4"/>
+                            <Button variant="outline-secondary" type="button" className="d-block w-100 mb-3" onClick={() => this.download('FakturyExport ' + format + '.txt', JSON.stringify(Invoices))}>Eksportuj Faktury</Button>
+                            <Button variant="outline-secondary" type="button" className="d-block w-100 mb-3" onClick={() => this.importInvoices()}>Importuj Faktury</Button>
                             <hr className="my-4"/>
                             <Button variant="outline-secondary" type="button" className="d-block w-100 mb-3" onClick={() => this.download('Export ' + format + '.txt', JSON.stringify(AllInfo))}>Eksportuj dane</Button>
                             <Button variant="outline-secondary" type="button" className="d-block w-100 mb-3" onClick={() => this.import()}>Importuj dane</Button>
@@ -662,5 +784,4 @@ class InvoiceForm extends React.Component {
 }
 
 export default InvoiceForm;
-/*TODO: Invoice number needs to go up with every next invoice.
-   table in invoice needs to remove columns that are empty and scale properly*/
+

@@ -1,0 +1,56 @@
+[
+  {
+    "currency": "zł",
+    "paymentMethod": "Gotówka",
+    "invoiceNumber": "0",
+    "dateOfIssue": "2019-01-01",
+    "dueDate":"2019-01-01",
+    "placeOfIssue": "Jejkowice",
+
+    "billFromNip": "",
+    "billFrom": "",
+    "billFromAddress": "",
+    "billFromPhone": "",
+    "billFromEmail": "",
+    "billFromBillingAddress": "",
+    "billFromBank": "",
+
+    "billToNip": "",
+    "billTo": "",
+    "billToAddress": "",
+    "billToPhone": "",
+    "billToEmail": "",
+    "billToBillingAddress": "",
+    "billToBank": "",
+
+    "billRecipientNip": "",
+    "billRecipient": "",
+    "billRecipientAddress": "",
+    "billRecipientPhone": "",
+    "billRecipientEmail": "",
+    "billRecipientBillingAddress": "",
+    "billRecipientBank": "",
+
+    "notes": "",
+    "dateModified": 0,
+
+    "items": [
+      {
+        "id": "",
+        "number": 1,
+        "name": "",
+        "PKWiU": "",
+        "netPrice": 0,
+        "netValue": 0,
+        "tax": 0,
+        "taxAmount": 0,
+        "discount": 0,
+        "discountAmount": 0,
+        "grossValue": 0,
+        "description": "",
+        "quantity": 1,
+        "hasDescription": false
+      }
+    ]
+  }
+]
