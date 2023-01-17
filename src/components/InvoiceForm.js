@@ -9,6 +9,7 @@ import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import InvoiceItem from './InvoiceItem';
 import InvoiceModal from './InvoiceModal';
+import ShowInvoices from './ShowInvoices';
 
 import AllInfo from './AllInfo.json';
 import Invoices1 from './Invoices.json';
@@ -67,7 +68,6 @@ class InvoiceForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isOpen: false,
             currency: 'zł',
             paymentMethod: 'Gotówka',
             invoiceNumber: 'FS ' + (JSON.parse(localStorage.getItem('AllInfo'))[3].lastInvoiceNumber+1) + '/' + yyyy,
@@ -323,9 +323,6 @@ class InvoiceForm extends React.Component {
                     items[i].taxAmount = Math.round((items[i].grossValue - items[i].netValue+ Number.EPSILON) * 100) / 100;
                     items[i].netPrice = Math.round((items[i].netValue * (1 + items[i].discount / (100 - items[i].discount)) / items[i].quantity + Number.EPSILON) * 100) / 100;
                 }
-
-                //console.log(items);
-
             }
         }
 
@@ -513,29 +510,29 @@ class InvoiceForm extends React.Component {
     saveInvoice = (AllInfo) => {
         for(let i = 0; i < Invoices.length; i++){
             if(Invoices[i].invoiceNumber === this.state.invoiceNumber){
-
-                if (window.confirm("Faktura z tym numerem już istnieje. Chcesz ją nadpisać?")){
-                    Invoices[i] = this.makeInvoice()
-                    localStorage.setItem('Invoices', JSON.stringify(Invoices));
-                    AllInfo[3].lastInvoiceNumber = parseInt(this.state.invoiceNumber.split("/")[0].split(" ")[1]);
-                    localStorage.setItem('AllInfo', JSON.stringify(AllInfo));
-                    console.log("Invoice overwritten");
-                }
-                else {
-                    setTimeout(() => {
-                        this.setState({isOpen: false})
-                    }, 10);
+                let invoice = this.makeInvoice();
+                invoice.dateModified = Invoices[i].dateModified;
+                if (JSON.stringify(Invoices[i]) !== JSON.stringify(invoice)){
+                    if (window.confirm("Faktura z tym numerem już istnieje. Chcesz ją nadpisać?")){
+                        Invoices[i] = this.makeInvoice()
+                        localStorage.setItem('Invoices', JSON.stringify(Invoices));
+                        AllInfo[3].lastInvoiceNumber = parseInt(this.state.invoiceNumber.split("/")[0].split(" ")[1]);
+                        localStorage.setItem('AllInfo', JSON.stringify(AllInfo));
+                    }
+                    else {
+                        setTimeout(() => {
+                            this.setState({isOpen: false})
+                        }, 10);
+                    }
                 }
                 break;
             }
             else if (i === Invoices.length - 1){
-
                 Invoices.push(this.makeInvoice());
                 localStorage.setItem('Invoices', JSON.stringify(Invoices));
 
                 AllInfo[3].lastInvoiceNumber = parseInt(this.state.invoiceNumber.split("/")[0].split(" ")[1]);
                 localStorage.setItem('AllInfo', JSON.stringify(AllInfo));
-                console.log("Invoice saved");
                 break;
             }
         }
@@ -566,7 +563,6 @@ class InvoiceForm extends React.Component {
                 reader.readAsText(file,'UTF-8');
                 reader.onload = readerEvent => {
                     let content = readerEvent.target.result;
-                    console.log(content);
                     content = JSON.parse(content.toString());
 
                     if (localStorage.getItem('AllInfo') !== null) {
@@ -591,7 +587,6 @@ class InvoiceForm extends React.Component {
                         AllInfo[3].lastInvoiceNumber = Math.max(AllInfo[3].lastInvoiceNumber, content[3].lastInvoiceNumber);
                     }
                     localStorage.setItem('AllInfo', JSON.stringify(content));
-                    console.log(JSON.parse(localStorage.getItem('AllInfo')));
                     AllInfo[0] = JSON.parse(localStorage.getItem('AllInfo'))[0];
                     AllInfo[1] = JSON.parse(localStorage.getItem('AllInfo'))[1];
                     AllInfo[2] = JSON.parse(localStorage.getItem('AllInfo'))[2];
@@ -601,7 +596,6 @@ class InvoiceForm extends React.Component {
         }
     }
     importInvoices() {
-        console.log(Invoices);
         const input = document.createElement('input');
         input.type = 'file';
         input.click();
@@ -634,6 +628,50 @@ class InvoiceForm extends React.Component {
         }
     }
 
+
+    loadInvoice = (invoice) => {
+        this.setState({
+            currency: invoice.currency,
+            paymentMethod: invoice.paymentMethod,
+            invoiceNumber: invoice.invoiceNumber,
+            dateOfIssue: invoice.dateOfIssue,
+            dueDate: invoice.dueDate,
+            placeOfIssue: invoice.placeOfIssue,
+
+            billFromNip: invoice.billFromNip,
+            billFrom: invoice.billFrom,
+            billFromAddress: invoice.billFromAddress,
+            billFromPhone: invoice.billFromPhone,
+            billFromEmail: invoice.billFromEmail,
+            billFromBillingAddress: invoice.billFromBillingAddress,
+            billFromBank: invoice.billFromBank,
+
+            billToNip: invoice.billToNip,
+            billTo: invoice.billTo,
+            billToAddress: invoice.billToAddress,
+            billToPhone: invoice.billToPhone,
+            billToEmail: invoice.billToEmail,
+            billToBillingAddress: invoice.billToBillingAddress,
+            billToBank: invoice.billToBank,
+
+            billRecipientNip: invoice.billRecipientNip,
+            billRecipient: invoice.billRecipient,
+            billRecipientAddress: invoice.billRecipientAddress,
+            billRecipientPhone: invoice.billRecipientPhone,
+            billRecipientEmail: invoice.billRecipientEmail,
+            billRecipientBillingAddress: invoice.billRecipientBillingAddress,
+            billRecipientBank: invoice.billRecipientBank,
+
+            notes: invoice.notes,
+            items: JSON.parse(JSON.stringify(invoice.items)),
+
+        })
+        setTimeout(() => {
+            this.handleCalculateTotal();
+        }, 100);
+
+    }
+
     onBeforeModal = () => {
         this.setState({
             dueDateF: (this.state.dueDate).substring(8,10) + '.' + (this.state.dueDate).substring(5,7) + '.' + (this.state.dueDate).substring(0,4),
@@ -648,6 +686,13 @@ class InvoiceForm extends React.Component {
         this.setState({isOpen: true})
     };
     closeModal = () => this.setState({isOpen: false});
+
+    openInvoices = () => this.setState({isInvoicesOpen: true})
+
+    closeInvoices = () => this.setState({isInvoicesOpen: false});
+
+
+
     render() {
         return (
             <Form onSubmit={(event) => {this.checkIfNew(); this.onBeforeModal(); this.saveInvoice(AllInfo); this.openModal(event)}}>
@@ -746,6 +791,7 @@ class InvoiceForm extends React.Component {
                         <div className="sticky-top pt-md-3 pt-xl-4">
                             <Button variant="primary" type="submit" className="d-block w-100">Sprawdź poprawność faktury, kliknięcie zapisze nowe dane i zatwierdzi numer faktury</Button>
                             <InvoiceModal showModal={this.state.isOpen} closeModal={this.closeModal} info={this.state} items={this.state.items} currency={this.state.currency} subTotal={this.state.subTotal} taxAmount={this.state.taxAmount} taxAmountInd={this.state.taxAmountInd} discountAmount={this.state.discountAmount} discountAmountInd={this.state.discountAmountInd} total={this.state.total}/>
+                            <ShowInvoices showInvoices={this.state.isInvoicesOpen} closeInvoices={this.closeInvoices} invoices={Invoices} editInvoice={this.loadInvoice} addZeros={this.addZeros}></ShowInvoices>
                             <Form.Group className="mb-3">
                                 <Form.Label className="fw-bold">Waluta:</Form.Label>
                                 <Form.Select onChange={(event) => {this.onCurrencyChange({currency: event.target["value"]}); this.handleCalculateTotal()}} className="btn btn-light my-1" aria-label="Change Currency">
@@ -768,7 +814,7 @@ class InvoiceForm extends React.Component {
                                 </Form.Select>
                             </Form.Group>
                             <hr className="my-4"/>
-                            <Button variant="outline-primary" type="button" className="d-block w-100 mb-3" onClick={() => this.import()}>Zobacz faktury</Button>
+                            <Button variant="outline-primary" type="button" className="d-block w-100 mb-3" onClick={() => this.openInvoices()}>Zobacz faktury</Button>
                             <hr className="my-4"/>
                             <Button variant="outline-secondary" type="button" className="d-block w-100 mb-3" onClick={() => this.download('FakturyExport ' + format + '.txt', JSON.stringify(Invoices))}>Eksportuj Faktury</Button>
                             <Button variant="outline-secondary" type="button" className="d-block w-100 mb-3" onClick={() => this.importInvoices()}>Importuj Faktury</Button>

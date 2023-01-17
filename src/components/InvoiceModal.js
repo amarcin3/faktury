@@ -791,7 +791,7 @@ class InvoiceModal extends React.Component {
                             <div className="w-100">
                                 <h4 style={{width: '90%'}} className="fw-bold my-2">{this.props.info.billFrom||''}</h4>
                                 <h6 className="fw-bold text-secondary mb-1">
-                                    Faktura#: {this.props.info.invoiceNumber||''}
+                                    Faktura nr. {this.props.info.invoiceNumber||''}
                                 </h6>
                             </div>
                             <div className="text-end ms-4">
